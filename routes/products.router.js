@@ -103,4 +103,76 @@ router.get('/:id', (req, res) => {
   }
 });
 
+router.post('/', (req, res) => {
+  const newProduct = req.body;
+  newProduct.id = products.at(-1).id + 1;
+  products.push(newProduct);
+  res.status(201).json({
+    status: 201,
+    message: 'Product created successfully',
+    product: newProduct,
+  });
+});
+
+router.put('/:id', (req, res) => {
+  const productId = parseInt(req.params.id);
+  const productIndex = products.findIndex((p) => p.id === productId);
+  if (productIndex === -1) {
+    res.status(404).json({
+      status: 404,
+      message: 'Product not found',
+      info: `No product found with ID ${productId}`,
+    });
+    return;
+  }
+
+  products[productIndex] = { ...products[productIndex], ...req.body };
+  res.status(200).json({
+    status: 200,
+    message: 'Product update successfully',
+    product: products[productIndex],
+  });
+});
+
+router.patch('/:id', (req, res) => {
+  const productId = parseInt(req.params.id);
+  const productIndex = products.findIndex((p) => p.id === productId);
+  if (productIndex === -1) {
+    res.status(404).json({
+      status: 404,
+      message: 'Product not found',
+      info: `No product found with ID ${productId}`,
+    });
+    return;
+  }
+
+  products[productIndex] = { ...products[productIndex], ...req.body };
+  res.status(200).json({
+    status: 200,
+    message: 'Product update successfully',
+    product: products[productIndex],
+  });
+});
+
+router.delete('/:id', (req, res) => {
+  const productId = parseInt(req.params.id, 10);
+  const productIndex = products.findIndex((p) => p.id === productId);
+
+  if (productIndex === -1) {
+    res.status(404).json({
+      status: 404,
+      message: 'Product not found',
+      info: `No product found with ID ${productId}`,
+    });
+    return;
+  }
+
+  products.splice(productIndex, 1);
+
+  res.status(200).json({
+    status: 200,
+    message: 'Product delete successfully',
+  });
+});
+
 export default router;
