@@ -28,6 +28,8 @@ export const createProductSchema = Joi.object({
   price: price.required(),
   description: description.required(),
   category: category.required(),
+  stock,
+  isBlock,
 });
 
 export const updateProductSchema = Joi.object({
