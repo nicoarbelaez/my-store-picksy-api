@@ -1,97 +1,16 @@
 import express from 'express';
-import { faker } from '@faker-js/faker';
+import ProductService from '../services/product.service.js';
 
 const router = express.Router();
-
-const generateProducts = (numProducts) => {
-  const products = [];
-  for (let i = 0; i < numProducts; i++) {
-    products.push({
-      id: i + 1,
-      name: faker.commerce.productName(),
-      image: faker.image.url(),
-      price: parseFloat(faker.commerce.price()),
-      description: faker.commerce.productDescription(),
-      category: faker.commerce.department(),
-      stock: faker.number.int({ min: 0, max: 100 }),
-      rating: parseFloat(
-        faker.number.float({ min: 1, max: 5, precision: 0.1 }).toFixed(1),
-      ),
-    });
-  }
-  return products;
-};
-
-const products = generateProducts(20);
-
-function filterProducts({
-  category,
-  minPrice,
-  maxPrice,
-  sortBy,
-  sortOrder,
-  limit,
-  offset,
-}) {
-  let filteredProducts = structuredClone(products);
-
-  if (category) {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.category === category,
-    );
-  }
-
-  if (minPrice) {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.price >= minPrice,
-    );
-  }
-
-  if (maxPrice) {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.price <= maxPrice,
-    );
-  }
-
-  if (sortBy) {
-    filteredProducts = filteredProducts.sort((a, b) => {
-      if (sortOrder === 'desc') {
-        return b[sortBy] - a[sortBy];
-      }
-      return a[sortBy] - b[sortBy];
-    });
-  }
-
-  if (offset) {
-    filteredProducts = filteredProducts.slice(parseInt(offset));
-  }
-
-  if (limit) {
-    filteredProducts = filteredProducts.slice(0, parseInt(limit));
-  }
-
-  return filteredProducts;
-}
+const service = new ProductService();
 
 router.get('/', (req, res) => {
-  const { category, minPrice, maxPrice, sortBy, sortOrder, limit, offset } =
-    req.query;
-  const filteredProducts = filterProducts({
-    category,
-    minPrice,
-    maxPrice,
-    sortBy,
-    sortOrder,
-    limit,
-    offset,
-  });
-
-  res.json(filteredProducts);
+  res.json(service.find(req.query));
 });
 
 router.get('/:id', (req, res) => {
   const productId = parseInt(req.params.id);
-  const product = products.find((p) => p.id === productId);
+  const product = service.findOne(productId);
   if (product) {
     res.json(product);
   } else {
@@ -104,9 +23,7 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const newProduct = req.body;
-  newProduct.id = products.at(-1).id + 1;
-  products.push(newProduct);
+  const newProduct = service.create(req.body);
   res.status(201).json({
     status: 201,
     message: 'Product created successfully',
@@ -116,8 +33,8 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
   const productId = parseInt(req.params.id);
-  const productIndex = products.findIndex((p) => p.id === productId);
-  if (productIndex === -1) {
+  const product = service.update(productId, req.body);
+  if (!product) {
     res.status(404).json({
       status: 404,
       message: 'Product not found',
@@ -126,18 +43,17 @@ router.put('/:id', (req, res) => {
     return;
   }
 
-  products[productIndex] = { ...products[productIndex], ...req.body };
   res.status(200).json({
     status: 200,
     message: 'Product update successfully',
-    product: products[productIndex],
+    product: product,
   });
 });
 
 router.patch('/:id', (req, res) => {
   const productId = parseInt(req.params.id);
-  const productIndex = products.findIndex((p) => p.id === productId);
-  if (productIndex === -1) {
+  const product = service.updatePartial(productId, req.body);
+  if (!product) {
     res.status(404).json({
       status: 404,
       message: 'Product not found',
@@ -146,19 +62,17 @@ router.patch('/:id', (req, res) => {
     return;
   }
 
-  products[productIndex] = { ...products[productIndex], ...req.body };
   res.status(200).json({
     status: 200,
     message: 'Product update successfully',
-    product: products[productIndex],
+    product: product,
   });
 });
 
 router.delete('/:id', (req, res) => {
   const productId = parseInt(req.params.id, 10);
-  const productIndex = products.findIndex((p) => p.id === productId);
-
-  if (productIndex === -1) {
+  const confirm = service.delete(productId);
+  if (!confirm) {
     res.status(404).json({
       status: 404,
       message: 'Product not found',
@@ -166,8 +80,6 @@ router.delete('/:id', (req, res) => {
     });
     return;
   }
-
-  products.splice(productIndex, 1);
 
   res.status(200).json({
     status: 200,

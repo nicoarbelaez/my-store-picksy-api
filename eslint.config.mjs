@@ -9,7 +9,7 @@ export default defineConfig([
         ...globals.node,
         ...globals.jest,
       },
-      ecmaVersion: 2018,
+      ecmaVersion: "lastet",
       sourceType: "module",
     },
     rules: {
