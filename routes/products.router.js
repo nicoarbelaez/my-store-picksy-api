@@ -8,17 +8,21 @@ router.get('/', async (req, res) => {
   res.json(await service.find(req.query));
 });
 
-router.get('/:id', async (req, res) => {
-  const productId = parseInt(req.params.id);
-  const product = await service.findOne(productId);
-  if (product) {
-    res.json(product);
-  } else {
-    res.status(404).json({
-      status: 404,
-      message: 'Product not found',
-      info: `No product found with ID ${productId}`,
-    });
+router.get('/:id', async (req, res, next) => {
+  try {
+    const productId = parseInt(req.params.id);
+    const product = await service.findOne(productId);
+    if (product) {
+      res.json(product);
+    } else {
+      res.status(404).json({
+        status: 404,
+        message: 'Product not found',
+        info: `No product found with ID ${productId}`,
+      });
+    }
+  } catch (error) {
+    next(error);
   }
 });
 

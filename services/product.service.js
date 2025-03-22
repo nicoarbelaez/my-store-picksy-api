@@ -111,6 +111,8 @@ export default class ProductService {
 
   async findOne(productId) {
     const products = await this.products;
+    const asdad = 1;
+    asdad = 100;
     return products.find((p) => p.id === productId);
   }
 
