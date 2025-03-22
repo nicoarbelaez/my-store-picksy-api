@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import boom from '@hapi/boom';
 
 export default class ProductService {
   constructor() {
@@ -27,6 +28,7 @@ export default class ProductService {
         rating: parseFloat(
           faker.number.float({ min: 1, max: 5, precision: 0.1 }).toFixed(1),
         ),
+        isBlock: faker.datatype.boolean(),
       });
     }
     return products;
@@ -111,16 +113,21 @@ export default class ProductService {
 
   async findOne(productId) {
     const products = await this.products;
-    const asdad = 1;
-    asdad = 100;
-    return products.find((p) => p.id === productId);
+    const product = products.find((p) => p.id === productId);
+    if (!product) {
+      throw boom.notFound('Product not found');
+    }
+    if (product.isBlock) {
+      throw boom.conflict('Product is blocked');
+    }
+    return product;
   }
 
   async update(productId, newProduct) {
     const products = await this.products;
     const productIndex = products.findIndex((p) => p.id === productId);
     if (productIndex === -1) {
-      return null;
+      throw boom.notFound('Product not found');
     }
 
     this._products[productIndex] = {
@@ -131,26 +138,16 @@ export default class ProductService {
   }
 
   async updatePartial(productId, newProduct) {
-    const products = await this.products;
-    const productIndex = products.findIndex((p) => p.id === productId);
-    if (productIndex === -1) {
-      return null;
-    }
-
-    this._products[productIndex] = {
-      ...this._products[productIndex],
-      ...newProduct,
-    };
-    return this._products[productIndex];
+    return this.update(productId, newProduct);
   }
 
   async delete(productId) {
     const products = await this.products;
     const productIndex = products.findIndex((p) => p.id === productId);
     if (productIndex === -1) {
-      return false;
+      throw boom.notFound('Product not found');
     }
     this._products.splice(productIndex, 1);
-    return true;
+    return { id: productId };
   }
 }

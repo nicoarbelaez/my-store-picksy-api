@@ -12,15 +12,8 @@ router.get('/:id', async (req, res, next) => {
   try {
     const productId = parseInt(req.params.id);
     const product = await service.findOne(productId);
-    if (product) {
-      res.json(product);
-    } else {
-      res.status(404).json({
-        status: 404,
-        message: 'Product not found',
-        info: `No product found with ID ${productId}`,
-      });
-    }
+
+    res.json(product);
   } catch (error) {
     next(error);
   }
@@ -35,60 +28,49 @@ router.post('/', async (req, res) => {
   });
 });
 
-router.put('/:id', async (req, res) => {
-  const productId = parseInt(req.params.id);
-  const product = await service.update(productId, req.body);
-  if (!product) {
-    res.status(404).json({
-      status: 404,
-      message: 'Product not found',
-      info: `No product found with ID ${productId}`,
-    });
-    return;
-  }
+router.put('/:id', async (req, res, next) => {
+  try {
+    const productId = parseInt(req.params.id);
+    const product = await service.update(productId, req.body);
 
-  res.status(200).json({
-    status: 200,
-    message: 'Product update successfully',
-    product: product,
-  });
+    res.status(200).json({
+      status: 200,
+      message: 'Product update successfully',
+      product: product,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.patch('/:id', async (req, res) => {
-  const productId = parseInt(req.params.id);
-  const product = await service.updatePartial(productId, req.body);
-  if (!product) {
-    res.status(404).json({
-      status: 404,
-      message: 'Product not found',
-      info: `No product found with ID ${productId}`,
-    });
-    return;
-  }
+router.patch('/:id', async (req, res, next) => {
+  try {
+    const productId = parseInt(req.params.id);
+    const product = await service.updatePartial(productId, req.body);
 
-  res.status(200).json({
-    status: 200,
-    message: 'Product update successfully',
-    product: product,
-  });
+    res.status(200).json({
+      status: 200,
+      message: 'Product update successfully',
+      product: product,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.delete('/:id', async (req, res) => {
-  const productId = parseInt(req.params.id, 10);
-  const confirm = await service.delete(productId);
-  if (!confirm) {
-    res.status(404).json({
-      status: 404,
-      message: 'Product not found',
-      info: `No product found with ID ${productId}`,
-    });
-    return;
-  }
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const productId = parseInt(req.params.id, 10);
+    const { id } = await service.delete(productId);
 
-  res.status(200).json({
-    status: 200,
-    message: 'Product delete successfully',
-  });
+    res.status(200).json({
+      status: 200,
+      message: 'Product delete successfully',
+      id,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;

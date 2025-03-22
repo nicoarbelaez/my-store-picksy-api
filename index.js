@@ -1,6 +1,6 @@
 import express from 'express';
 import routerApi from './routes/index.router.js';
-import { errorHandler, logErrors } from './middlewares/error.handler.js';
+import { errorHandler, logErrors, boomErrorHandler } from './middlewares/error.handler.js';
 
 const app = express();
 const PORT = 3000;
@@ -18,6 +18,7 @@ app.get('/about', (req, res) => {
 routerApi(app);
 
 app.use(logErrors);
+app.use(boomErrorHandler);
 app.use(errorHandler);
 
 app.listen(PORT, () => {

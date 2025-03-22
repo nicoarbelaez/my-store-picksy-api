@@ -1,5 +1,5 @@
 const logErrors = (err, req, res, next) => {
-  console.error(err.stack);
+  console.error(`Error Log \t ${err.stack}`);
   next(err);
 };
 
@@ -11,4 +11,13 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-export { logErrors, errorHandler };
+const boomErrorHandler = (err, req, res, next) => {
+  if (err.isBoom) {
+    const { output } = err;
+    res.status(output.statusCode).json(output.payload);
+    return;
+  }
+  next(err);
+};
+
+export { logErrors, errorHandler, boomErrorHandler };
