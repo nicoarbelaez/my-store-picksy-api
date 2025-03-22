@@ -2,7 +2,15 @@ import { faker } from '@faker-js/faker';
 
 export default class ProductService {
   constructor() {
-    this.products = this.#generateProducts(100);
+    this._products = this.#generateProducts(100);
+  }
+
+  get products() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this._products);
+      }, 1000);
+    });
   }
 
   #generateProducts(numProducts) {
@@ -24,7 +32,7 @@ export default class ProductService {
     return products;
   }
 
-  #filterProducts({
+  async #filterProducts({
     category,
     minPrice,
     maxPrice,
@@ -33,7 +41,8 @@ export default class ProductService {
     limit,
     offset,
   }) {
-    let filteredProducts = structuredClone(this.products);
+    const products = await this.products;
+    let filteredProducts = structuredClone(products);
 
     if (category) {
       filteredProducts = filteredProducts.filter(
@@ -73,13 +82,22 @@ export default class ProductService {
     return filteredProducts;
   }
 
-  create(newProduct) {
-    newProduct.id = this.products.at(-1).id + 1;
-    this.products.push(newProduct);
+  async create(newProduct) {
+    const products = await this.products;
+    newProduct.id = products.at(-1).id + 1;
+    this._products.push(newProduct);
     return newProduct;
   }
 
-  find({ category, minPrice, maxPrice, sortBy, sortOrder, limit, offset }) {
+  async find({
+    category,
+    minPrice,
+    maxPrice,
+    sortBy,
+    sortOrder,
+    limit,
+    offset,
+  }) {
     return this.#filterProducts({
       category,
       minPrice,
@@ -91,42 +109,46 @@ export default class ProductService {
     });
   }
 
-  findOne(productId) {
-    return this.products.find((p) => p.id === productId);
+  async findOne(productId) {
+    const products = await this.products;
+    return products.find((p) => p.id === productId);
   }
 
-  update(productId, newProduct) {
-    const productIndex = this.products.findIndex((p) => p.id === productId);
+  async update(productId, newProduct) {
+    const products = await this.products;
+    const productIndex = products.findIndex((p) => p.id === productId);
     if (productIndex === -1) {
       return null;
     }
 
-    this.products[productIndex] = {
-      ...this.products[productIndex],
+    this._products[productIndex] = {
+      ...this._products[productIndex],
       ...newProduct,
     };
-    return this.products[productIndex];
+    return this._products[productIndex];
   }
 
-  updatePartial(productId, newProduct) {
-    const productIndex = this.products.findIndex((p) => p.id === productId);
+  async updatePartial(productId, newProduct) {
+    const products = await this.products;
+    const productIndex = products.findIndex((p) => p.id === productId);
     if (productIndex === -1) {
       return null;
     }
 
-    this.products[productIndex] = {
-      ...this.products[productIndex],
+    this._products[productIndex] = {
+      ...this._products[productIndex],
       ...newProduct,
     };
-    return this.products[productIndex];
+    return this._products[productIndex];
   }
 
-  delete(productId) {
-    const productIndex = this.products.findIndex((p) => p.id === productId);
+  async delete(productId) {
+    const products = await this.products;
+    const productIndex = products.findIndex((p) => p.id === productId);
     if (productIndex === -1) {
       return false;
     }
-    this.products.splice(productIndex, 1);
+    this._products.splice(productIndex, 1);
     return true;
   }
 }

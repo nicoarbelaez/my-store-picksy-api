@@ -4,13 +4,13 @@ import ProductService from '../services/product.service.js';
 const router = express.Router();
 const service = new ProductService();
 
-router.get('/', (req, res) => {
-  res.json(service.find(req.query));
+router.get('/', async (req, res) => {
+  res.json(await service.find(req.query));
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   const productId = parseInt(req.params.id);
-  const product = service.findOne(productId);
+  const product = await service.findOne(productId);
   if (product) {
     res.json(product);
   } else {
@@ -22,8 +22,8 @@ router.get('/:id', (req, res) => {
   }
 });
 
-router.post('/', (req, res) => {
-  const newProduct = service.create(req.body);
+router.post('/', async (req, res) => {
+  const newProduct = await service.create(req.body);
   res.status(201).json({
     status: 201,
     message: 'Product created successfully',
@@ -31,9 +31,9 @@ router.post('/', (req, res) => {
   });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   const productId = parseInt(req.params.id);
-  const product = service.update(productId, req.body);
+  const product = await service.update(productId, req.body);
   if (!product) {
     res.status(404).json({
       status: 404,
@@ -50,9 +50,9 @@ router.put('/:id', (req, res) => {
   });
 });
 
-router.patch('/:id', (req, res) => {
+router.patch('/:id', async (req, res) => {
   const productId = parseInt(req.params.id);
-  const product = service.updatePartial(productId, req.body);
+  const product = await service.updatePartial(productId, req.body);
   if (!product) {
     res.status(404).json({
       status: 404,
@@ -69,9 +69,9 @@ router.patch('/:id', (req, res) => {
   });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const productId = parseInt(req.params.id, 10);
-  const confirm = service.delete(productId);
+  const confirm = await service.delete(productId);
   if (!confirm) {
     res.status(404).json({
       status: 404,
