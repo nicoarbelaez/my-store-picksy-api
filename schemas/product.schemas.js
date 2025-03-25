@@ -1,17 +1,5 @@
 import Joi from 'joi';
 
-// id: i + 1,
-// name: faker.commerce.productName(),
-// image: faker.image.url(),
-// price: parseFloat(faker.commerce.price()),
-// description: faker.commerce.productDescription(),
-// category: faker.commerce.department(),
-// stock: faker.number.int({ min: 0, max: 100 }),
-// rating: parseFloat(
-//   faker.number.float({ min: 1, max: 5, precision: 0.1 }).toFixed(1),
-// ),
-// isBlock: faker.datatype.boolean(),
-
 const id = Joi.number().integer().positive();
 const name = Joi.string().min(3).max(30);
 const image = Joi.string().uri();
