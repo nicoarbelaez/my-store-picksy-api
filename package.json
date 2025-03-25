@@ -23,6 +23,7 @@
   "dependencies": {
     "@faker-js/faker": "^9.6.0",
     "@hapi/boom": "^10.0.1",
+    "cors": "^2.8.5",
     "express": "^4.21.2",
     "joi": "^17.13.3",
     "my-store": "file:"

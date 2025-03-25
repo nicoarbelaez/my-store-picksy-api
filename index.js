@@ -1,11 +1,24 @@
 import express from 'express';
 import routerApi from './routes/index.router.js';
+import cors from 'cors';
 import { errorHandler, logErrors, boomErrorHandler } from './middlewares/error.handler.js';
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+
+const whitelist = ['http://localhost:8080'];
+const options = {
+  origin: (origin, callback) => {
+    if (whitelist.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido'));
+    }
+  },
+}
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('<h1>My Store</h1>');
