@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
+    "dev": "nodemon --exec \"node --env-file=.env\" index.js",
+    "start": "node --env-file=.env index.js",
     "lint": "eslint ."
   },
   "type": "module",
