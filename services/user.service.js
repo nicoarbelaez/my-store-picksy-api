@@ -31,7 +31,6 @@ export default class UserService {
   }
 
   async create(newUser) {
-    const users = await this.users;
     newUser.id = faker.string.uuid();
     this._users.push(newUser);
     return newUser;
