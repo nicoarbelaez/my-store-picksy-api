@@ -1,10 +1,14 @@
 import { faker } from '@faker-js/faker';
 import boom from '@hapi/boom';
-import { getConnection } from '../lib/postgres.js';
+import { pool } from '../lib/postgres.pool.js';
 
 export default class UserService {
   constructor() {
     this._users = this.#generateUsers(100);
+    this.pool = pool;
+    this.pool.on('error', (err) => {
+      console.error('Unexpected error on idle client', err);
+    });
   }
 
   get users() {
@@ -38,8 +42,8 @@ export default class UserService {
   }
 
   async find() {
-    const client = await getConnection();
-    const response = await client.query('SELECT * FROM tasks');
+    const query = 'SELECT * FROM tasks';
+    const response = await this.pool.query(query);
     return response.rows;
     // return this.users;
   }

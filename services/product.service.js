@@ -1,9 +1,14 @@
 import { faker } from '@faker-js/faker';
 import boom from '@hapi/boom';
+import { pool } from '../lib/postgres.pool.js';
 
 export default class ProductService {
   constructor() {
     this._products = this.#generateProducts(100);
+    this.pool = pool;
+    this.pool.on('error', (err) => {
+      console.error('Unexpected error on idle client', err);
+    });
   }
 
   get products() {
@@ -100,15 +105,18 @@ export default class ProductService {
     limit,
     offset,
   }) {
-    return this.#filterProducts({
-      category,
-      minPrice,
-      maxPrice,
-      sortBy,
-      sortOrder,
-      limit,
-      offset,
-    });
+    const query = 'SELECT * FROM tasks';
+    const response = await this.pool.query(query);
+    return response.rows;
+    // return this.#filterProducts({
+    //   category,
+    //   minPrice,
+    //   maxPrice,
+    //   sortBy,
+    //   sortOrder,
+    //   limit,
+    //   offset,
+    // });
   }
 
   async findOne(productId) {
