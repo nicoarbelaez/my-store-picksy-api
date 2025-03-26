@@ -1,14 +1,10 @@
 import { faker } from '@faker-js/faker';
 import boom from '@hapi/boom';
-import { pool } from '../lib/postgres.pool.js';
+import { sequelize } from '../lib/sequelize.js';
 
 export default class UserService {
   constructor() {
     this._users = this.#generateUsers(100);
-    this.pool = pool;
-    this.pool.on('error', (err) => {
-      console.error('Unexpected error on idle client', err);
-    });
   }
 
   get users() {
@@ -43,8 +39,8 @@ export default class UserService {
 
   async find() {
     const query = 'SELECT * FROM tasks';
-    const response = await this.pool.query(query);
-    return response.rows;
+    const [data] = await sequelize.query(query);
+    return data;
     // return this.users;
   }
 
