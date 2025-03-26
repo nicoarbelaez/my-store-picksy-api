@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import boom from '@hapi/boom';
+import { getConnection } from '../lib/postgres.js';
 
 export default class UserService {
   constructor() {
@@ -37,7 +38,10 @@ export default class UserService {
   }
 
   async find() {
-    return this.users;
+    const client = await getConnection();
+    const response = await client.query('SELECT * FROM tasks');
+    return response.rows;
+    // return this.users;
   }
 
   async findOne(userId) {

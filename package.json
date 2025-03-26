@@ -26,6 +26,7 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "joi": "^17.13.3",
-    "my-store": "file:"
+    "my-store": "file:",
+    "pg": "^8.14.1"
   }
 }
