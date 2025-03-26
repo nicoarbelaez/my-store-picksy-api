@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import boom from '@hapi/boom';
-import { sequelize } from '../lib/sequelize.js';
+import { models } from '../lib/sequelize.js';
 
 export default class ProductService {
   constructor() {
@@ -101,8 +101,7 @@ export default class ProductService {
     limit,
     offset,
   }) {
-    const query = 'SELECT * FROM tasks';
-    const [data] = await sequelize.query(query);
+    const data = await models.Product.findAll();
     return data;
     // return this.#filterProducts({
     //   category,

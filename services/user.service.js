@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import boom from '@hapi/boom';
-import { sequelize } from '../lib/sequelize.js';
+import { models } from '../lib/sequelize.js';
 
 export default class UserService {
   constructor() {
@@ -38,10 +38,8 @@ export default class UserService {
   }
 
   async find() {
-    const query = 'SELECT * FROM tasks';
-    const [data] = await sequelize.query(query);
+    const data = await models.User.findAll();
     return data;
-    // return this.users;
   }
 
   async findOne(userId) {
