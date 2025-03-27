@@ -7,7 +7,7 @@ const password = Joi.string().min(8).max(30);
 const firstName = Joi.string().min(3).max(30);
 const lastname = Joi.string().min(3).max(30);
 const image = Joi.string().uri();
-const rol = Joi.string().min(5);
+const role = Joi.string().min(5);
 const isBlock = Joi.boolean();
 
 export const createUserSchema = Joi.object({
@@ -17,7 +17,7 @@ export const createUserSchema = Joi.object({
   firstName: firstName.required(),
   lastname: lastname.required(),
   image,
-  // rol: rol.required(),
+  role: role.required(),
   isBlock,
 });
 
@@ -27,7 +27,7 @@ export const updateUserSchema = Joi.object({
   phone,
   lastname,
   image,
-  // rol,
+  role,
   isBlock,
 });
 

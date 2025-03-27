@@ -50,13 +50,14 @@ export const UserSchema = {
       isUrl: true,
     },
   },
-  // rol: {
-  //   allowNull: false,
-  //   type: DataTypes.STRING,
-  //   validate: {
-  //     len: [5, 50],
-  //   },
-  // },
+  role: {
+    allowNull: false,
+    type: DataTypes.STRING,
+    validate: {
+      len: [5, 50],
+    },
+    defaultValue: 'customer',
+  },
   isBlock: {
     allowNull: false,
     type: DataTypes.BOOLEAN,
