@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
-export const USER_TABLE = 'products';
+export const PRODUCT_TABLE = 'products';
 
 export const ProductSchema = {
   id: {
@@ -51,7 +51,7 @@ export class Product extends Model {
   static config(sequelize) {
     return {
       sequelize,
-      tableName: USER_TABLE,
+      tableName: PRODUCT_TABLE,
       modelName: this.modelName,
       timestamps: false,
     };
