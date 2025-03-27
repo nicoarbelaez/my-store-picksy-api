@@ -6,6 +6,7 @@ export const USER_TABLE = 'users';
 export const UserSchema = {
   id: {
     allowNull: false,
+    autoIncrement: true,
     primaryKey: true,
     type: DataTypes.UUID,
     defaultValue: () => uuidv4(),
@@ -14,54 +15,15 @@ export const UserSchema = {
     allowNull: false,
     type: DataTypes.STRING,
     unique: true,
-    validate: {
-      len: [3, 30],
-    },
   },
   password: {
     allowNull: false,
     type: DataTypes.STRING,
   },
-  phone: {
-    allowNull: true,
-    type: DataTypes.STRING,
-    validate: {
-      len: [12, 12],
-    },
-  },
-  firstName: {
-    allowNull: false,
-    type: DataTypes.STRING,
-    validate: {
-      len: [3, 30],
-    },
-  },
-  lastname: {
-    allowNull: false,
-    type: DataTypes.STRING,
-    validate: {
-      len: [3, 30],
-    },
-  },
-  image: {
-    allowNull: true,
-    type: DataTypes.STRING,
-    validate: {
-      isUrl: true,
-    },
-  },
   role: {
     allowNull: false,
     type: DataTypes.STRING,
-    validate: {
-      len: [5, 50],
-    },
     defaultValue: 'customer',
-  },
-  isBlock: {
-    allowNull: false,
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
   },
   createdAt: {
     allowNull: false,

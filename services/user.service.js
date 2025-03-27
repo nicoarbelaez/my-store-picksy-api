@@ -46,9 +46,6 @@ export default class UserService {
     if (!user) {
       throw boom.notFound('User not found');
     }
-    if (user.isBlock) {
-      throw boom.conflict('User is blocked');
-    }
     return user;
   }
 
