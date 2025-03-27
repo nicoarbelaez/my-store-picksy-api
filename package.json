@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "nodemon --exec \"node --env-file=.env\" index.js",
     "start": "node --env-file=.env index.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "migration:generate": "sequelize-cli migration:generate --name",
+    "migration:run": "sequelize-cli db:migrate",
+    "migration:rollback": "sequelize-cli db:migrate:undo",
+    "migration:delete": "sequelize-cli db:migrate:undo:all"
   },
   "type": "module",
   "keywords": [],
@@ -30,6 +34,7 @@
     "pg": "^8.14.1",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.6",
+    "sequelize-cli": "^6.6.2",
     "uuid": "^11.1.0"
   }
 }
