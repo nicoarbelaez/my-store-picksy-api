@@ -1,7 +1,12 @@
 import express from 'express';
 import routerApi from './routes/index.router.js';
 import cors from 'cors';
-import { errorHandler, logErrors, boomErrorHandler } from './middlewares/error.handler.js';
+import {
+  errorHandler,
+  logErrors,
+  boomErrorHandler,
+  sequelizeErrorHandler,
+} from './middlewares/error.handler.js';
 import { config } from './config/config.js';
 
 const app = express();
@@ -9,7 +14,8 @@ const PORT = config.port;
 
 app.use(express.json());
 
-const whitelist = config.corsWhitelist === '*' ? [] : config.corsWhitelist.split(',');
+const whitelist =
+  config.corsWhitelist === '*' ? [] : config.corsWhitelist.split(',');
 const options = {
   origin: (origin, callback) => {
     if (whitelist.length === 0 || whitelist.includes(origin) || !origin) {
@@ -32,6 +38,7 @@ app.get('/about', (req, res) => {
 routerApi(app);
 
 app.use(logErrors);
+app.use(sequelizeErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
 

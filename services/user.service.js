@@ -32,19 +32,17 @@ export default class UserService {
   }
 
   async create(newUser) {
-    newUser.id = faker.string.uuid();
-    this._users.push(newUser);
-    return newUser;
+    const newUserCreate = await models.User.create(newUser);
+    return newUserCreate;
   }
 
   async find() {
-    const data = await models.User.findAll();
+    const data = models.User.findAll();
     return data;
   }
 
   async findOne(userId) {
-    const users = await this.users;
-    const user = users.find((p) => p.id === userId);
+    const user = await models.User.findByPk(userId);
     if (!user) {
       throw boom.notFound('User not found');
     }
@@ -55,17 +53,16 @@ export default class UserService {
   }
 
   async update(userId, newUser) {
-    const users = await this.users;
-    const userIndex = users.findIndex((p) => p.id === userId);
-    if (userIndex === -1) {
+    const user = await models.User.findByPk(userId);
+    if (!user) {
       throw boom.notFound('User not found');
     }
 
-    this._users[userIndex] = {
-      ...this._users[userIndex],
-      ...newUser,
-    };
-    return this._users[userIndex];
+    const updateUser = await models.User.update(newUser, {
+      where: { id: userId },
+      returning: true,
+    });
+    return updateUser;
   }
 
   async updatePartial(userId, newUser) {
@@ -73,12 +70,12 @@ export default class UserService {
   }
 
   async delete(userId) {
-    const users = await this.users;
-    const userIndex = users.findIndex((p) => p.id === userId);
-    if (userIndex === -1) {
+    const user = await models.User.findByPk(userId);
+    if (!user) {
       throw boom.notFound('User not found');
     }
-    this._users.splice(userIndex, 1);
+
+    await user.destroy();
     return { id: userId };
   }
 }
