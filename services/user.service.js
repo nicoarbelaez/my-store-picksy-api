@@ -32,6 +32,13 @@ export default class UserService {
   }
 
   async create(newUser) {
+    const existingUser = await models.User.findOne({
+      where: { email: newUser.email },
+    });
+    if (existingUser) {
+      throw boom.notFound('User already exists');
+    }
+
     const newUserCreate = await models.User.create(newUser);
     return newUserCreate;
   }

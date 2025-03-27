@@ -6,7 +6,6 @@ export const USER_TABLE = 'users';
 export const UserSchema = {
   id: {
     allowNull: false,
-    autoIncrement: true,
     primaryKey: true,
     type: DataTypes.UUID,
     defaultValue: () => uuidv4(),
