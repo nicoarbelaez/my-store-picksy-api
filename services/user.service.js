@@ -36,7 +36,7 @@ export default class UserService {
       where: { email: newUser.email },
     });
     if (existingUser) {
-      throw boom.notFound('User already exists');
+      throw boom.conflict('User already exists');
     }
 
     const newUserCreate = await models.User.create(newUser);
