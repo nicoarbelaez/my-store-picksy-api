@@ -1,95 +1,19 @@
-import { faker } from '@faker-js/faker';
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
 
 export default class ProductService {
-  constructor() {
-    this._products = this.#generateProducts(100);
-  }
-
-  get products() {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(this._products);
-      }, 1000);
-    });
-  }
-
-  #generateProducts(numProducts) {
-    const products = [];
-    for (let i = 0; i < numProducts; i++) {
-      products.push({
-        id: i + 1,
-        name: faker.commerce.productName(),
-        image: faker.image.url(),
-        price: parseFloat(faker.commerce.price()),
-        description: faker.commerce.productDescription(),
-        category: faker.commerce.department(),
-        stock: faker.number.int({ min: 0, max: 100 }),
-        rating: parseFloat(
-          faker.number.float({ min: 1, max: 5, precision: 0.1 }).toFixed(1),
-        ),
-        isBlock: faker.datatype.boolean(),
-      });
-    }
-    return products;
-  }
-
-  async #filterProducts({
-    category,
-    minPrice,
-    maxPrice,
-    sortBy,
-    sortOrder,
-    limit,
-    offset,
-  }) {
-    const products = await this.products;
-    let filteredProducts = structuredClone(products);
-
-    if (category) {
-      filteredProducts = filteredProducts.filter(
-        (product) => product.category === category,
-      );
-    }
-
-    if (minPrice) {
-      filteredProducts = filteredProducts.filter(
-        (product) => product.price >= minPrice,
-      );
-    }
-
-    if (maxPrice) {
-      filteredProducts = filteredProducts.filter(
-        (product) => product.price <= maxPrice,
-      );
-    }
-
-    if (sortBy) {
-      filteredProducts = filteredProducts.sort((a, b) => {
-        if (sortOrder === 'desc') {
-          return b[sortBy] - a[sortBy];
-        }
-        return a[sortBy] - b[sortBy];
-      });
-    }
-
-    if (offset) {
-      filteredProducts = filteredProducts.slice(parseInt(offset));
-    }
-
-    if (limit) {
-      filteredProducts = filteredProducts.slice(0, parseInt(limit));
-    }
-
-    return filteredProducts;
-  }
+  constructor() {}
 
   async create(newProduct) {
-    const products = await this.products;
-    newProduct.id = products.at(-1).id + 1;
-    this._products.push(newProduct);
-    return newProduct;
+    const existingProduct = await models.Product.findOne({
+      where: { email: newProduct.email },
+    });
+    if (existingProduct) {
+      throw boom.conflict('Product already exists');
+    }
+
+    const newProductCreate = await models.Product.create(newProduct);
+    return newProductCreate;
   }
 
   async find({
@@ -103,41 +27,27 @@ export default class ProductService {
   }) {
     const data = await models.Product.findAll();
     return data;
-    // return this.#filterProducts({
-    //   category,
-    //   minPrice,
-    //   maxPrice,
-    //   sortBy,
-    //   sortOrder,
-    //   limit,
-    //   offset,
-    // });
   }
 
   async findOne(productId) {
-    const products = await this.products;
-    const product = products.find((p) => p.id === productId);
+    const product = await models.Product.findByPk(productId);
     if (!product) {
       throw boom.notFound('Product not found');
-    }
-    if (product.isBlock) {
-      throw boom.conflict('Product is blocked');
     }
     return product;
   }
 
   async update(productId, newProduct) {
-    const products = await this.products;
-    const productIndex = products.findIndex((p) => p.id === productId);
-    if (productIndex === -1) {
+    const product = await models.Product.findByPk(productId);
+    if (!product) {
       throw boom.notFound('Product not found');
     }
 
-    this._products[productIndex] = {
-      ...this._products[productIndex],
-      ...newProduct,
-    };
-    return this._products[productIndex];
+    const updateProduct = await models.Product.update(newProduct, {
+      where: { id: productId },
+      returning: true,
+    });
+    return updateProduct;
   }
 
   async updatePartial(productId, newProduct) {
@@ -145,12 +55,12 @@ export default class ProductService {
   }
 
   async delete(productId) {
-    const products = await this.products;
-    const productIndex = products.findIndex((p) => p.id === productId);
-    if (productIndex === -1) {
+    const product = await models.Product.findByPk(productId);
+    if (!product) {
       throw boom.notFound('Product not found');
     }
-    this._products.splice(productIndex, 1);
+
+    await product.destroy(product);
     return { id: productId };
   }
 }
