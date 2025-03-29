@@ -28,12 +28,16 @@ export default class ProductService {
     limit,
     offset,
   }) {
-    const data = await models.Product.findAll();
+    const data = await models.Product.findAll({
+      include: ['category'],
+    });
     return data;
   }
 
   async findOne(productId) {
-    const product = await models.Product.findByPk(productId);
+    const product = await models.Product.findByPk(productId, {
+      include: ['category'],
+    });
     if (!product) {
       throw boom.notFound('Product not found');
     }
