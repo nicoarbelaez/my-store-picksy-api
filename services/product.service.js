@@ -1,6 +1,6 @@
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
-import { response } from 'express';
+import { Op } from 'sequelize';
 
 export default class ProductService {
   constructor() {}
@@ -20,29 +20,62 @@ export default class ProductService {
     return newProductCreate;
   }
 
-  async find({ page = 1, size = 10 }) {
-    const totalElements = await models.Product.count();
-    const totalPages = Math.ceil(totalElements / size);
-    size = size > totalElements ? totalElements : size;
-    page = page > totalPages ? totalPages : page;
+  async find({
+    page = 1,
+    size = 10,
+    order = 'asc',
+    sort,
+    min_price,
+    max_price,
+    search,
+  }) {
+    const conditions = [];
 
-    const offset = (page - 1) * size;
-    const limit = size;
+    if (min_price !== undefined) {
+      conditions.push({ price: { [Op.gte]: min_price } });
+    }
+    if (max_price !== undefined) {
+      conditions.push({ price: { [Op.lte]: max_price } });
+    }
+
+    if (search) {
+      conditions.push({
+        [Op.or]: [
+          { name: { [Op.iLike]: `%${search}%` } },
+          { description: { [Op.iLike]: `%${search}%` } },
+        ],
+      });
+    }
+
+    const where = conditions.length > 0 ? { [Op.and]: conditions } : {};
+
     const options = {
       include: ['category'],
-      offset,
-      limit,
+      where,
     };
 
+    if (sort) {
+      options.order = [[sort, order.toUpperCase()]];
+    }
+
+    const totalElements = await models.Product.count({ where });
+    const totalPages = Math.ceil(totalElements / size);
+    size = Math.min(size, totalElements);
+    page = Math.min(page, totalPages) || 1;
+
+    const offset = (page - 1) * size;
+    options.offset = offset;
+    options.limit = size;
+
     const products = await models.Product.findAll(options);
-    const response = {
+
+    return {
       content: products,
       page,
       size,
       totalElements,
       totalPages,
     };
-    return response;
   }
 
   async findOne(productId) {
