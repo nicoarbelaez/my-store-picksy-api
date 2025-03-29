@@ -24,7 +24,9 @@ export default class UserService {
   }
 
   async find() {
-    const customers = models.Customer.findAll();
+    const customers = models.Customer.findAll({
+      include: ['user'],
+    });
     return customers;
   }
 
