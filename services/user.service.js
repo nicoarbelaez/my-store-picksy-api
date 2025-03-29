@@ -31,7 +31,7 @@ export default class UserService {
     return users;
   }
 
-  async create(newUser) {
+  static async create(newUser) {
     const existingUser = await models.User.findOne({
       where: { email: newUser.email },
     });

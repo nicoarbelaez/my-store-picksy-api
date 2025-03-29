@@ -1,25 +1,38 @@
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
+import UserService from './user.service.js';
 
-export default class UserService {
+export default class CustomerService {
   constructor() {}
 
   async create(newCustomer) {
-    const existingCustomer = await models.Customer.findOne({
-      where: { userId: newCustomer.userId },
-    });
-    if (existingCustomer) {
-      throw boom.conflict(
-        `Customer already exists with userId: ${newCustomer.userId}`,
-      );
+    let customer;
+    if (!newCustomer.userId) {
+      customer = await models.Customer.create(newCustomer, {
+        include: ['user'],
+      });
+    } else {
+      const existingCustomer = await models.Customer.findOne({
+        where: { userId: newCustomer.userId },
+      });
+      if (existingCustomer) {
+        throw boom.conflict(
+          `Customer already exists with userId: ${newCustomer.userId}`,
+        );
+      }
+
+      const existingUser = await models.User.findByPk(newCustomer.userId);
+      if (!existingUser) {
+        throw boom.notFound(`User not found with id: ${newCustomer.userId}`);
+      }
+      customer = await models.Customer.create(newCustomer, {
+        include: ['user'],
+      });
     }
 
-    const existingUser = await models.User.findByPk(newCustomer.userId);
-    if (!existingUser) {
-      throw boom.notFound(`User not found with id: ${newCustomer.userId}`);
-    }
-
-    const customer = await models.Customer.create(newCustomer);
+    // const customerWithUser = await models.Customer.findByPk(customer.id, {
+    //   include: ['user'],
+    // });
     return customer;
   }
 

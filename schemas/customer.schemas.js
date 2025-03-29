@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { createUserSchema } from './user.schemas.js';
 
 const id = Joi.number().integer().positive();
 const name = Joi.string().min(3).max(30);
@@ -11,8 +12,9 @@ export const createCustomerSchema = Joi.object({
   name: name.required(),
   lastName: lastName.required(),
   phone: phone.required(),
-  userId: userId.required(),
-});
+  userId,
+  user: createUserSchema,
+}).or('userId', 'user');
 
 export const updateCustomerSchema = Joi.object({
   name,
