@@ -33,6 +33,7 @@ export const CustomerSchema = {
     allowNull: false,
     type: DataTypes.UUID,
     field: 'user_id',
+    unique: true,
     references: {
       model: USER_TABLE,
       key: 'id',

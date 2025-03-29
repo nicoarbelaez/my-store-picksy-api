@@ -5,6 +5,20 @@ export default class UserService {
   constructor() {}
 
   async create(newCustomer) {
+    const existingCustomer = await models.Customer.findOne({
+      where: { userId: newCustomer.userId },
+    });
+    if (existingCustomer) {
+      throw boom.conflict(
+        `Customer already exists with userId: ${newCustomer.userId}`,
+      );
+    }
+
+    const existingUser = await models.User.findByPk(newCustomer.userId);
+    if (!existingUser) {
+      throw boom.notFound(`User not found with id: ${newCustomer.userId}`);
+    }
+
     const customer = await models.Customer.create(newCustomer);
     return customer;
   }

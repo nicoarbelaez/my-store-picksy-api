@@ -31,13 +31,17 @@ router.get(
 router.post(
   '/',
   validatorHandler(createCustomerSchema, 'body'),
-  async (req, res) => {
-    const newCustomer = await service.create(req.body);
-    res.status(201).json({
-      status: 201,
-      message: 'Customer created successfully',
-      customer: newCustomer,
-    });
+  async (req, res, next) => {
+    try {
+      const newCustomer = await service.create(req.body);
+      res.status(201).json({
+        status: 201,
+        message: 'Customer created successfully',
+        customer: newCustomer,
+      });
+    } catch (error) {
+      next(error);
+    }
   },
 );
 
