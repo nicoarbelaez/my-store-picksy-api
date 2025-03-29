@@ -15,7 +15,7 @@ export const OrderSchema = {
     allowNull: false,
     type: DataTypes.INTEGER,
     references: {
-      model: CUSTOMER_TABLE ,
+      model: CUSTOMER_TABLE,
       key: 'id',
     },
     onUpdate: 'CASCADE',
@@ -40,6 +40,12 @@ export class Order extends Model {
   static associate(models) {
     this.belongsTo(models.Customer, {
       as: 'customer',
+    });
+    this.belongsToMany(models.Product, {
+      as: 'items',
+      through: models.OrderProduct,
+      foreignKey: 'orderId',
+      otherKey: 'productId',
     });
   }
 
