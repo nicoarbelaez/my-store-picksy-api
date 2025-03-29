@@ -4,13 +4,14 @@ import { validatorHandler } from '../middlewares/validator.handler.js';
 import {
   createProductSchema,
   getProductSchema,
+  querySchema,
   updateProductSchema,
 } from '../schemas/product.schemas.js';
 
 const router = express.Router();
 const service = new ProductService();
 
-router.get('/', async (req, res) => {
+router.get('/', validatorHandler(querySchema, 'query'), async (req, res) => {
   res.json(await service.find(req.query));
 });
 

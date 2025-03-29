@@ -1,5 +1,6 @@
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
+import { response } from 'express';
 
 export default class ProductService {
   constructor() {}
@@ -19,19 +20,29 @@ export default class ProductService {
     return newProductCreate;
   }
 
-  async find({
-    category,
-    minPrice,
-    maxPrice,
-    sortBy,
-    sortOrder,
-    limit,
-    offset,
-  }) {
-    const data = await models.Product.findAll({
+  async find({ page = 1, size = 10 }) {
+    const totalElements = await models.Product.count();
+    const totalPages = Math.ceil(totalElements / size);
+    size = size > totalElements ? totalElements : size;
+    page = page > totalPages ? totalPages : page;
+
+    const offset = (page - 1) * size;
+    const limit = size;
+    const options = {
       include: ['category'],
-    });
-    return data;
+      offset,
+      limit,
+    };
+
+    const products = await models.Product.findAll(options);
+    const response = {
+      content: products,
+      page,
+      size,
+      totalElements,
+      totalPages,
+    };
+    return response;
   }
 
   async findOne(productId) {

@@ -34,3 +34,8 @@ export const updateProductSchema = Joi.object({
 export const getProductSchema = Joi.object({
   id: id.required(),
 });
+
+export const querySchema = Joi.object({
+  page: Joi.number().integer().positive(),
+  size: Joi.number().integer().positive(),
+});
