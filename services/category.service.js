@@ -17,12 +17,16 @@ export default class CategoryService {
   }
 
   async find() {
-    const data = await models.Category.findAll();
+    const data = await models.Category.findAll({
+      include: ['products'],
+    });
     return data;
   }
 
   async findOne(categoryId) {
-    const category = await models.Category.findByPk(categoryId);
+    const category = await models.Category.findByPk(categoryId, {
+      include: ['products'],
+    });
     if (!category) {
       throw boom.notFound('Category not found');
     }
