@@ -29,10 +29,6 @@ export default class CustomerService {
         include: ['user'],
       });
     }
-
-    // const customerWithUser = await models.Customer.findByPk(customer.id, {
-    //   include: ['user'],
-    // });
     return customer;
   }
 
