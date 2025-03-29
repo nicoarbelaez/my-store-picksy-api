@@ -1,6 +1,5 @@
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
-import UserService from './user.service.js';
 
 export default class CustomerService {
   constructor() {}
