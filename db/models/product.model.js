@@ -1,4 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import { CATEGORY_TABLE } from './category.model.js';
 
 export const PRODUCT_TABLE = 'products';
 
@@ -25,13 +26,21 @@ export const ProductSchema = {
     allowNull: true,
     type: DataTypes.TEXT,
   },
-  category: {
+  categoryId: {
     allowNull: false,
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
+    field: 'category_id',
+    references: {
+      model: CATEGORY_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
   },
   stock: {
     allowNull: false,
     type: DataTypes.INTEGER,
+    defaultValue: 0,
   },
   createdAt: {
     allowNull: false,
@@ -44,8 +53,10 @@ export const ProductSchema = {
 export class Product extends Model {
   static modelName = 'Product';
 
-  static associate() {
-    // associate
+  static associate(models) {
+    this.belongsTo(models.Category, {
+      as: 'category',
+    });
   }
 
   static config(sequelize) {
