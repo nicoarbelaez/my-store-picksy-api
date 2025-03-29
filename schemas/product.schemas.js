@@ -5,7 +5,7 @@ const name = Joi.string().min(3).max(30);
 const image = Joi.string().uri();
 const price = Joi.number().positive();
 const description = Joi.string().min(10).max(250);
-const category = Joi.string().min(3).max(30);
+const categoryId = Joi.number().integer().positive();
 const stock = Joi.number().integer().min(0).max(100);
 const rating = Joi.number().min(1).max(5).precision(1);
 const isBlock = Joi.boolean();
@@ -15,7 +15,7 @@ export const createProductSchema = Joi.object({
   image: image.required(),
   price: price.required(),
   description: description.required(),
-  category: category.required(),
+  categoryId: categoryId.required(),
   stock,
   isBlock,
 });
@@ -25,7 +25,7 @@ export const updateProductSchema = Joi.object({
   image,
   price,
   description,
-  category,
+  categoryId,
   stock,
   rating,
   isBlock,
