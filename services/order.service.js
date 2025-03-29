@@ -9,6 +9,11 @@ export default class OrderService {
     return newOrder;
   }
 
+  async addItem(data) {
+    const newItem = await models.OrderProduct.create(data);
+    return newItem;
+  }
+
   async find() {
     const orders = await models.Order.findAll({
       include: [
@@ -16,6 +21,7 @@ export default class OrderService {
           association: 'customer',
           include: ['user'],
         },
+        'items',
       ],
     });
     return orders;

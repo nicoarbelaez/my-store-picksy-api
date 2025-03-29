@@ -5,6 +5,7 @@ import {
   getOrderSchema,
   createOrderSchema,
   updateOrderSchema,
+  addItemSchema,
 } from '../schemas/order.schema.js';
 
 const router = express.Router();
@@ -45,6 +46,24 @@ router.post(
         status: 201,
         message: 'Order created successfully',
         order: newOrder,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+router.post(
+  '/add-item',
+  validatorHandler(addItemSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const newItem = await service.addItem(req.body);
+
+      res.status(201).json({
+        status: 201,
+        message: 'Order created successfully',
+        order: newItem,
       });
     } catch (error) {
       next(error);
