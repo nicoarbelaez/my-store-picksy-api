@@ -1,35 +1,8 @@
-import { faker } from '@faker-js/faker';
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
 
 export default class UserService {
-  constructor() {
-    this._users = this.#generateUsers(100);
-  }
-
-  get users() {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(this._users);
-      }, 1000);
-    });
-  }
-
-  #generateUsers(numUsers) {
-    const users = [];
-    for (let i = 0; i < numUsers; i++) {
-      users.push({
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        phone: faker.phone.number({ style: 'international' }),
-        firstName: faker.person.firstName(),
-        lastname: faker.person.lastName(),
-        image: faker.image.avatar(),
-        isBlock: faker.datatype.boolean(),
-      });
-    }
-    return users;
-  }
+  constructor() {}
 
   static async create(newUser) {
     const existingUser = await models.User.findOne({
