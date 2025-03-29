@@ -26,9 +26,17 @@ const options = {
   },
 };
 app.use(cors(options));
-
 app.get('/', (req, res) => {
-  res.send('<h1>My Store</h1>');
+  res.send(
+    '<h1>My Store</h1>' +
+      `<br>
+    DB_POSTGRES_URL: ${process.env.DB_POSTGRES_URL} <br>
+    DB_NILEDB_PASSWORD: ${process.env.DB_NILEDB_PASSWORD} <br>
+    DB_NILEDB_API_URL: ${process.env.DB_NILEDB_API_URL} <br>
+    DB_NILEDB_POSTGRES_URL: ${process.env.DB_NILEDB_POSTGRES_URL} <br>
+    DB_NILEDB_URL: ${process.env.DB_NILEDB_URL} <br>
+    DB_NILEDB_USER: ${process.env.DB_NILEDB_USER} <br>`,
+  );
 });
 
 app.get('/about', (req, res) => {
