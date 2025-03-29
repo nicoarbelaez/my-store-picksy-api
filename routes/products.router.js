@@ -32,13 +32,17 @@ router.get(
 router.post(
   '/',
   validatorHandler(createProductSchema, 'body'),
-  async (req, res) => {
-    const newProduct = await service.create(req.body);
-    res.status(201).json({
-      status: 201,
-      message: 'Product created successfully',
-      product: newProduct,
-    });
+  async (req, res, next) => {
+    try {
+      const newProduct = await service.create(req.body);
+      res.status(201).json({
+        status: 201,
+        message: 'Product created successfully',
+        product: newProduct,
+      });
+    } catch (error) {
+      next(error);
+    }
   },
 );
 
@@ -84,7 +88,7 @@ router.patch(
 
 router.delete(
   '/:id',
-  validatorHandler(getProductSchema, 'params'), 
+  validatorHandler(getProductSchema, 'params'),
   async (req, res, next) => {
     try {
       const productId = parseInt(req.params.id, 10);
