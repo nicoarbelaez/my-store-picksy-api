@@ -5,14 +5,17 @@ export default class ProductService {
   constructor() {}
 
   async create(newProduct) {
-    const existingProduct = await models.Product.findOne({
-      where: { email: newProduct.email },
-    });
-    if (existingProduct) {
-      throw boom.conflict('Product already exists');
+    const existingCategory = await models.Category.findByPk(
+      newProduct.categoryId,
+    );
+    if (!existingCategory) {
+      throw boom.notFound(
+        `Category not found with id: ${newProduct.categoryId}`,
+      );
     }
 
     const newProductCreate = await models.Product.create(newProduct);
+    newProductCreate.dataValues.category = existingCategory;
     return newProductCreate;
   }
 
@@ -41,6 +44,15 @@ export default class ProductService {
     const product = await models.Product.findByPk(productId);
     if (!product) {
       throw boom.notFound('Product not found');
+    }
+
+    const existingCategory = await models.Category.findByPk(
+      newProduct.categoryId,
+    );
+    if (!existingCategory) {
+      throw boom.notFound(
+        `Category not found with id: ${newProduct.categoryId}`,
+      );
     }
 
     const updateProduct = await models.Product.update(newProduct, {
