@@ -1,7 +1,8 @@
 'use strict';
 
-import { DataTypes } from 'sequelize';
-import { CUSTOMER_TABLE, CustomerSchema } from '../models/customer.model.js';
+import { DataTypes, Sequelize } from 'sequelize';
+import { CUSTOMER_TABLE } from '../models/customer.model.js';
+import { USER_TABLE } from '../models/user.model.js';
 
 /** @type {import('sequelize-cli').Migration} */
 export async function up(queryInterface) {

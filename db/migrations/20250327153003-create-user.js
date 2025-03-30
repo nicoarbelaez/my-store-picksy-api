@@ -1,10 +1,33 @@
 'use strict';
 
-import { USER_TABLE, UserSchema } from '../models/user.model.js';
+import { DataTypes, Sequelize } from 'sequelize';
+import { USER_TABLE } from '../models/user.model.js';
 
 /** @type {import('sequelize-cli').Migration} */
 export async function up(queryInterface) {
-  await queryInterface.createTable(USER_TABLE, UserSchema);
+  await queryInterface.createTable(USER_TABLE, {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: () => uuidv4(),
+    },
+    email: {
+      allowNull: false,
+      type: DataTypes.STRING,
+      unique: true,
+    },
+    password: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      field: 'create_at',
+      defaultValue: Sequelize.NOW,
+    },
+  });
 }
 
 export async function down(queryInterface) {

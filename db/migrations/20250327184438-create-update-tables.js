@@ -1,77 +1,76 @@
 'use strict';
 
-import { CATEGORY_TABLE, CategorySchema } from '../models/category.model.js';
-import { CUSTOMER_TABLE, CustomerSchema } from '../models/customer.model.js';
-import { USER_TABLE, UserSchema } from '../models/user.model.js';
+import { DataTypes, Sequelize } from 'sequelize';
+import { CATEGORY_TABLE } from '../models/category.model.js';
+import { CUSTOMER_TABLE } from '../models/customer.model.js';
+import { USER_TABLE } from '../models/user.model.js';
 
 /** @type {import('sequelize-cli').Migration} */
 export async function up(queryInterface) {
-  await queryInterface.createTable(CATEGORY_TABLE, CategorySchema);
-  await queryInterface.createTable(CUSTOMER_TABLE, CustomerSchema);
-
-  await queryInterface.removeColumn(USER_TABLE, 'phone');
-  await queryInterface.removeColumn(USER_TABLE, 'firstName');
-  await queryInterface.removeColumn(USER_TABLE, 'lastname');
-  await queryInterface.removeColumn(USER_TABLE, 'image');
-  await queryInterface.removeColumn(USER_TABLE, 'isBlock');
-
-  await queryInterface.changeColumn(USER_TABLE, 'id', UserSchema.id);
-  await queryInterface.changeColumn(USER_TABLE, 'email', UserSchema.email);
-  await queryInterface.changeColumn(USER_TABLE, 'role', UserSchema.role);
+  await queryInterface.createTable(CATEGORY_TABLE, {
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER,
+    },
+    name: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      field: 'created_at',
+      defaultValue: Sequelize.NOW,
+    },
+  });
+  await queryInterface.createTable(CUSTOMER_TABLE, {
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER,
+    },
+    name: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    lastName: {
+      allowNull: false,
+      type: DataTypes.STRING,
+      field: 'last_name',
+    },
+    phone: {
+      allowNull: true,
+      type: DataTypes.STRING,
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      field: 'created_at',
+      defaultValue: Sequelize.NOW,
+    },
+    userId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+      field: 'user_id',
+      references: {
+        model: USER_TABLE,
+        key: 'id',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
+    },
+  });
 }
 
 export async function down(queryInterface) {
   await queryInterface.dropTable(CATEGORY_TABLE);
   await queryInterface.dropTable(CUSTOMER_TABLE);
-
-  await queryInterface.addColumn(USER_TABLE, 'phone', {
-    allowNull: true,
-    type: DataTypes.STRING,
-    validate: {
-      len: [12, 12],
-    },
-  });
-  await queryInterface.addColumn(USER_TABLE, 'firstName', {
-    allowNull: false,
-    type: DataTypes.STRING,
-    validate: {
-      len: [3, 30],
-    },
-  });
-  await queryInterface.addColumn(USER_TABLE, 'lastname', {
-    allowNull: false,
-    type: DataTypes.STRING,
-    validate: {
-      len: [3, 30],
-    },
-  });
-  await queryInterface.addColumn(USER_TABLE, 'image', {
-    allowNull: true,
-    type: DataTypes.STRING,
-    validate: {
-      isUrl: true,
-    },
-  });
-  await queryInterface.addColumn(USER_TABLE, 'is_block', {
-    allowNull: false,
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  });
-
-  await queryInterface.changeColumn(USER_TABLE, 'email', {
-    allowNull: false,
-    type: DataTypes.STRING,
-    unique: true,
-    validate: {
-      len: [3, 30],
-    },
-  });
-  await queryInterface.changeColumn(USER_TABLE, 'role', {
-    allowNull: false,
-    type: DataTypes.STRING,
-    validate: {
-      len: [5, 50],
-    },
-    defaultValue: 'customer',
-  });
 }
