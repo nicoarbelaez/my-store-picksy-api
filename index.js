@@ -9,12 +9,32 @@ import {
   sequelizeErrorHandler,
 } from './middlewares/error.handler.js';
 import { config } from './config/config.js';
+import swaggerUi from 'swagger-ui-express';
+import fs from 'fs';
+import YAML from 'yaml';
 
 const app = express();
 const PORT = config.port;
 
 // Middleware para parsear JSON
 app.use(express.json());
+
+// Cargar el archivo YAML de Swagger
+let swaggerFile = fs.readFileSync('./swagger/swagger.yml', 'utf8');
+swaggerFile = swaggerFile.replace(/{host}/g, config.host);
+swaggerFile = swaggerFile.replace(/{port}/g, config.port);
+const swaggerDocument = YAML.parse(swaggerFile);
+
+// Opciones personalizadas para Swagger UI
+const swaggerOptions = {
+  swaggerOptions: {
+    supportedSubmitMethods: [],
+  },
+  customSiteTitle: 'Documentación API My Store',
+};
+
+// Middleware para Swagger
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 // Configuración de CORS
 const whitelist =
@@ -30,15 +50,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Rutas principales
-app.get('/', (req, res) => {
-  res.send('<h1>My Store</h1>');
-});
-
-app.get('/about', (req, res) => {
-  res.send('<h1>About</h1>');
-});
-
 // Rutas de la API
 routerApi(app);
 
@@ -53,9 +64,7 @@ sequelize
   .authenticate()
   .then(() => {
     console.log('Database connected successfully!');
-    app.listen(PORT, () =>
-      console.log(`Server is running on port ${PORT}`),
-    );
+    app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
   })
   .catch((error) => {
     console.error(
