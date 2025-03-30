@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec \"node --env-file=.env\" index.js",
-    "start": "node --env-file=.env index.js",
+    "dev": "nodemon index.js",
+    "start": "node index.js",
     "lint": "eslint .",
     "migration:generate": "sequelize-cli migration:generate --name",
     "migration:run": "sequelize-cli db:migrate",
@@ -28,6 +28,7 @@
     "@faker-js/faker": "^9.6.0",
     "@hapi/boom": "^10.0.1",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "joi": "^17.13.3",
     "my-store": "file:",

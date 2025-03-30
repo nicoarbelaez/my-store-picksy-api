@@ -1,4 +1,5 @@
 import express from 'express';
+import { sequelize } from './lib/sequelize.js';
 import routerApi from './routes/index.router.js';
 import cors from 'cors';
 import {
@@ -12,11 +13,13 @@ import { config } from './config/config.js';
 const app = express();
 const PORT = config.port;
 
+// Middleware para parsear JSON
 app.use(express.json());
 
+// Configuración de CORS
 const whitelist =
   config.corsWhitelist === '*' ? [] : config.corsWhitelist.split(',');
-const options = {
+const corsOptions = {
   origin: (origin, callback) => {
     if (whitelist.length === 0 || whitelist.includes(origin) || !origin) {
       callback(null, true);
@@ -25,31 +28,39 @@ const options = {
     }
   },
 };
-app.use(cors(options));
+app.use(cors(corsOptions));
+
+// Rutas principales
 app.get('/', (req, res) => {
-  res.send(
-    '<h1>My Store</h1>' +
-      `<br>
-    DB_POSTGRES_URL: ${process.env.DB_POSTGRES_URL} <br>
-    DB_NILEDB_PASSWORD: ${process.env.DB_NILEDB_PASSWORD} <br>
-    DB_NILEDB_API_URL: ${process.env.DB_NILEDB_API_URL} <br>
-    DB_NILEDB_POSTGRES_URL: ${process.env.DB_NILEDB_POSTGRES_URL} <br>
-    DB_NILEDB_URL: ${process.env.DB_NILEDB_URL} <br>
-    DB_NILEDB_USER: ${process.env.DB_NILEDB_USER} <br>`,
-  );
+  res.send('<h1>My Store</h1>');
 });
 
 app.get('/about', (req, res) => {
   res.send('<h1>About</h1>');
 });
 
+// Rutas de la API
 routerApi(app);
 
+// Middlewares de manejo de errores
 app.use(logErrors);
 app.use(sequelizeErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Escuchando en puerto ${PORT}`);
-});
+// Probar la conexión a la base de datos y luego iniciar el servidor
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Database connected successfully!');
+    app.listen(PORT, () =>
+      console.log(`Server is running on port ${PORT}`),
+    );
+  })
+  .catch((error) => {
+    console.error(
+      'Unable to connect to the database:',
+      error.message + '\n',
+      error,
+    );
+  });
