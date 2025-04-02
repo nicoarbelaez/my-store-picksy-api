@@ -9,32 +9,12 @@ import {
   sequelizeErrorHandler,
 } from './middlewares/error.handler.js';
 import { config } from './config/config.js';
-import swaggerUi from 'swagger-ui-express';
-import fs from 'fs';
-import YAML from 'yaml';
 
 const app = express();
 const PORT = config.port;
 
 // Middleware para parsear JSON
 app.use(express.json());
-
-// Cargar el archivo YAML de Swagger
-let swaggerFile = fs.readFileSync('./swagger/swagger.yml', 'utf8');
-swaggerFile = swaggerFile.replace(/{host}/g, config.host);
-swaggerFile = swaggerFile.replace(/{port}/g, config.port);
-const swaggerDocument = YAML.parse(swaggerFile);
-
-// Opciones personalizadas para Swagger UI
-const swaggerOptions = {
-  swaggerOptions: {
-    supportedSubmitMethods: [],
-  },
-  customSiteTitle: 'Documentación API My Store',
-};
-
-// Middleware para Swagger
-app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 // Configuración de CORS
 const whitelist =

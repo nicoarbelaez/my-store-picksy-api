@@ -44,15 +44,9 @@ importers:
       sequelize-cli:
         specifier: ^6.6.2
         version: 6.6.2
-      swagger-ui-express:
-        specifier: ^5.0.1
-        version: 5.0.1(express@4.21.2)
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
-      yaml:
-        specifier: ^2.7.1
-        version: 2.7.1
     devDependencies:
       eslint:
         specifier: ^9.22.0
@@ -2115,6 +2109,7 @@ snapshots:
       sequelize-cli: 6.6.2
       swagger-ui-express: 5.0.1(express@4.21.2)
       uuid: 11.1.0
+      yaml: 2.7.1
     transitivePeerDependencies:
       - ibm_db
       - mariadb
