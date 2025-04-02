@@ -2,31 +2,40 @@ import Joi from 'joi';
 
 const id = Joi.number().integer().positive();
 const name = Joi.string().min(3).max(30);
-const image = Joi.string().uri();
 const price = Joi.number().positive();
 const description = Joi.string().min(10).max(250);
 const categoryId = Joi.number().integer().positive();
 const stock = Joi.number().integer().min(0).max(100);
-const isBlock = Joi.boolean();
+const discount = Joi.number().integer().min(0).max(100);
+const characteristics = Joi.array().items(Joi.string());
+const enabled = Joi.boolean();
+const created_at = Joi.date();
+const updated_at = Joi.date();
 
 export const createProductSchema = Joi.object({
   name: name.required(),
-  image: image.required(),
   price: price.required(),
   description: description.required(),
   categoryId: categoryId.required(),
   stock,
-  isBlock,
+  discount,
+  characteristics,
+  enabled,
+  created_at,
+  updated_at,
 });
 
 export const updateProductSchema = Joi.object({
   name,
-  image,
   price,
   description,
   categoryId,
   stock,
-  isBlock,
+  discount,
+  characteristics,
+  enabled,
+  created_at,
+  updated_at,
 });
 
 export const getProductSchema = Joi.object({
@@ -44,3 +53,17 @@ export const querySchema = Joi.object({
 })
   .rename('minPrice', 'min_price', { ignoreUndefined: true })
   .rename('maxPrice', 'max_price', { ignoreUndefined: true });
+
+export const productResponseSchema = Joi.object({
+  id: id.required(),
+  name: name.required(),
+  price: price.required(),
+  description: description.required(),
+  categoryId: categoryId.required(),
+  stock: stock.required(),
+  discount: discount.required(),
+  characteristics: characteristics.required(),
+  enabled: enabled.required(),
+  created_at: created_at.required(),
+  updated_at: updated_at.required(),
+});

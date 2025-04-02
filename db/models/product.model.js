@@ -14,16 +14,12 @@ export const ProductSchema = {
     allowNull: false,
     type: DataTypes.STRING,
   },
-  image: {
-    allowNull: false,
-    type: DataTypes.STRING,
-  },
   price: {
     allowNull: false,
     type: DataTypes.FLOAT,
   },
   description: {
-    allowNull: true,
+    allowNull: false,
     type: DataTypes.TEXT,
   },
   categoryId: {
@@ -42,10 +38,30 @@ export const ProductSchema = {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
+  discount: {
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
+  characteristics: {
+    allowNull: true,
+    type: DataTypes.JSON,
+  },
+  enabled: {
+    allowNull: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,
-    field: 'create_at',
+    field: 'created_at',
+    defaultValue: Sequelize.NOW,
+  },
+  updatedAt: {
+    allowNull: false,
+    type: DataTypes.DATE,
+    field: 'updated_at',
     defaultValue: Sequelize.NOW,
   },
 };
@@ -54,8 +70,9 @@ export class Product extends Model {
   static modelName = 'Product';
 
   static associate(models) {
-    this.belongsTo(models.Category, {
-      as: 'category',
+    this.hasMany(models.ProductImage, {
+      as: 'images',
+      foreignKey: 'productId',
     });
   }
 
