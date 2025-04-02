@@ -1,7 +1,7 @@
 import { config } from '../config/config.js';
 import { URL_IMGUR_API } from './consts.js';
 
-export async function uploadImageToImgur(buffer, mimeType) {
+export async function uploadImageToImgur(buffer) {
   const base64Image = buffer.toString('base64');
 
   const formData = new FormData();
