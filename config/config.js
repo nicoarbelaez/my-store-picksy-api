@@ -13,4 +13,8 @@ export const config = {
     password: process.env.DB_PASSWORD || 'postgres',
   },
   corsWhitelist: process.env.CORS_WHITELIST || '*',
+  imgur: {
+    clientId: process.env.IMGUR_CLIENT_ID,
+    clientSecret: process.env.IMGUR_CLIENT_SECRET,
+  },
 };
