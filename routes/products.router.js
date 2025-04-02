@@ -7,6 +7,9 @@ import {
   querySchema,
   updateProductSchema,
 } from '../schemas/product.schemas.js';
+import { upload } from '../lib/multer.js';
+import { uploadImageToImgur } from '../utils/uploadToImgur.js';
+import { multerProductImageSchema } from '../schemas/product-image.schemas.js';
 
 const router = express.Router();
 const service = new ProductService();
@@ -32,10 +35,12 @@ router.get(
 
 router.post(
   '/',
+  upload.array('images', 5),
+  validatorHandler(multerProductImageSchema, 'files'),
   validatorHandler(createProductSchema, 'body'),
   async (req, res, next) => {
     try {
-      const newProduct = await service.create(req.body);
+      const newProduct = await service.create(req.body, req.files);
       res.status(201).json({
         status: 201,
         message: 'Product created successfully',

@@ -43,11 +43,3 @@ export const createProductImageSchema = Joi.object({
   datetime: datetime.required(),
   originalname: originalname.required(),
 });
-
-export const responseObjectSchema = Joi.array().items({
-  id: Joi.string().required(),
-  link: Joi.string().uri().required(),
-  width: Joi.number().positive().required(),
-  height: Joi.number().positive().required(),
-  size: Joi.number().positive().required(),
-});

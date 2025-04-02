@@ -53,17 +53,3 @@ export const querySchema = Joi.object({
 })
   .rename('minPrice', 'min_price', { ignoreUndefined: true })
   .rename('maxPrice', 'max_price', { ignoreUndefined: true });
-
-export const productResponseSchema = Joi.object({
-  id: id.required(),
-  name: name.required(),
-  price: price.required(),
-  description: description.required(),
-  categoryId: categoryId.required(),
-  stock: stock.required(),
-  discount: discount.required(),
-  characteristics: characteristics.required(),
-  enabled: enabled.required(),
-  created_at: created_at.required(),
-  updated_at: updated_at.required(),
-});

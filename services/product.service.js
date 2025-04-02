@@ -1,11 +1,12 @@
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
 import { Op } from 'sequelize';
+import { uploadImageToImgur } from '../utils/uploadToImgur.js';
 
 export default class ProductService {
   constructor() {}
 
-  async create(newProduct) {
+  async create(newProduct, newProductImages) {
     const existingCategory = await models.Category.findByPk(
       newProduct.categoryId,
     );
@@ -15,9 +16,50 @@ export default class ProductService {
       );
     }
 
-    const newProductCreate = await models.Product.create(newProduct);
-    newProductCreate.dataValues.category = existingCategory;
-    return newProductCreate;
+    const newCreateProduct = await models.Product.create(newProduct);
+    const { categoryId, ...product } = newCreateProduct.toJSON();
+    let createdImages = [];
+
+    try {
+      const imgurImagesResponses = [];
+      for (const file of newProductImages) {
+        const imageResponse = await uploadImageToImgur(file.buffer);
+        imgurImagesResponses.push(imageResponse);
+      }
+
+      const consolidatedImages = imgurImagesResponses.map(
+        (imgurData, index) => {
+          const multerData = newProductImages[index];
+
+          return {
+            imgurId: imgurData.id,
+            deletehash: imgurData.deletehash,
+            mimetype: imgurData.type,
+            width: imgurData.width,
+            height: imgurData.height,
+            size: imgurData.size,
+            link: imgurData.link,
+            datetime: imgurData.datetime,
+            originalname: multerData.originalname,
+            productId: product.id,
+          };
+        },
+      );
+
+      createdImages = await models.ProductImage.bulkCreate(consolidatedImages);
+    } catch (error) {
+      throw boom.badRequest('There was a problem uploading the images');
+    }
+    const response = {
+      ...product,
+      images: createdImages.map((obj) => {
+        const { id, link, width, height, size } = obj.toJSON();
+        return { id, link, width, height, size };
+      }),
+      category: existingCategory.toJSON(),
+    };
+
+    return response;
   }
 
   async find({
