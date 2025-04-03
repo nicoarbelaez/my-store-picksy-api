@@ -70,6 +70,10 @@ export class Product extends Model {
   static modelName = 'Product';
 
   static associate(models) {
+    this.belongsTo(models.Category, {
+      as: 'category',
+      foreignKey: 'categoryId',
+    });
     this.hasMany(models.ProductImage, {
       as: 'images',
       foreignKey: 'productId',
