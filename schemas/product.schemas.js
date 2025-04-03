@@ -9,8 +9,6 @@ const stock = Joi.number().integer().min(0).max(100);
 const discount = Joi.number().integer().min(0).max(100);
 const characteristics = Joi.array().items(Joi.string());
 const enabled = Joi.boolean();
-const created_at = Joi.date();
-const updated_at = Joi.date();
 
 export const createProductSchema = Joi.object({
   name: name.required(),
@@ -21,8 +19,6 @@ export const createProductSchema = Joi.object({
   discount,
   characteristics,
   enabled,
-  created_at,
-  updated_at,
 });
 
 export const updateProductSchema = Joi.object({
@@ -34,8 +30,6 @@ export const updateProductSchema = Joi.object({
   discount,
   characteristics,
   enabled,
-  created_at,
-  updated_at,
 });
 
 export const getProductSchema = Joi.object({
