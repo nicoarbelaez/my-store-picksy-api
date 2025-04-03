@@ -1,7 +1,7 @@
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
 import { Op } from 'sequelize';
-import { uploadImageToImgur } from '../utils/uploadToImgur.js';
+import { createImagesForProduct } from './product-image.service.js';
 
 export default class ProductService {
   constructor() {}
@@ -18,38 +18,11 @@ export default class ProductService {
 
     const newCreateProduct = await models.Product.create(newProduct);
     const { categoryId, ...product } = newCreateProduct.toJSON();
-    let createdImages = [];
+    let createdImages = await createImagesForProduct(
+      product.id,
+      newProductImages,
+    );
 
-    try {
-      const imgurImagesResponses = [];
-      for (const file of newProductImages) {
-        const imageResponse = await uploadImageToImgur(file.buffer);
-        imgurImagesResponses.push(imageResponse);
-      }
-
-      const consolidatedImages = imgurImagesResponses.map(
-        (imgurData, index) => {
-          const multerData = newProductImages[index];
-
-          return {
-            imgurId: imgurData.id,
-            deletehash: imgurData.deletehash,
-            mimetype: imgurData.type,
-            width: imgurData.width,
-            height: imgurData.height,
-            size: imgurData.size,
-            link: imgurData.link,
-            datetime: imgurData.datetime,
-            originalname: multerData.originalname,
-            productId: product.id,
-          };
-        },
-      );
-
-      createdImages = await models.ProductImage.bulkCreate(consolidatedImages);
-    } catch (error) {
-      throw boom.badRequest('There was a problem uploading the images');
-    }
     const response = {
       ...product,
       images: createdImages.map((obj) => {
