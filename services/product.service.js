@@ -53,8 +53,8 @@ export default class ProductService {
     const response = {
       ...product,
       images: createdImages.map((obj) => {
-        const { id, link, width, height, size } = obj.toJSON();
-        return { id, link, width, height, size };
+        const { productId, ...image } = obj.toJSON();
+        return image;
       }),
       category: existingCategory.toJSON(),
     };
