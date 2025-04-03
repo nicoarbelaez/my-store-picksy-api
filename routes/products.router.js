@@ -53,6 +53,7 @@ router.post(
 
 router.put(
   '/:id',
+  upload.array('imagesToAdd', 5),
   validatorHandler(multerProductImageSchema, 'files'),
   validatorHandler(getProductSchema, 'params'),
   validatorHandler(updateProductSchema, 'body'),

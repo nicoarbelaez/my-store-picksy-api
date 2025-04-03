@@ -30,6 +30,7 @@ export const updateProductSchema = Joi.object({
   discount,
   characteristics,
   enabled,
+  imagesToRemove: Joi.array().items(Joi.number()),
 });
 
 export const getProductSchema = Joi.object({
