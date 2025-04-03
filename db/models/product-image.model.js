@@ -73,6 +73,17 @@ export class ProductImage extends Model {
       tableName: PRODUCT_IMAGE_TABLE,
       modelName: this.modelName,
       timestamps: false,
+      hooks: {
+        beforeCreate: async (productImage, options) => {
+          const { ProductImage } = sequelize.models;
+          const imageCount = await ProductImage.count({
+            where: { productId: productImage.productId },
+          });
+          if (imageCount >= 5) {
+            throw new Error('A product cannot have more than 5 images.');
+          }
+        },
+      },
     };
   }
 }
