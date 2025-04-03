@@ -92,7 +92,14 @@ export default class ProductService {
     const where = conditions.length > 0 ? { [Op.and]: conditions } : {};
 
     const options = {
-      include: ['category'],
+      attributes: { exclude: ['categoryId'] },
+      include: [
+        'category',
+        {
+          association: 'images',
+          attributes: { exclude: ['productId'] },
+        },
+      ],
       where,
     };
 
@@ -122,7 +129,14 @@ export default class ProductService {
 
   async findOne(productId) {
     const product = await models.Product.findByPk(productId, {
-      include: ['category'],
+      attributes: { exclude: ['categoryId'] },
+      include: [
+        'category',
+        {
+          association: 'images',
+          attributes: { exclude: ['productId'] },
+        },
+      ],
     });
     if (!product) {
       throw boom.notFound('Product not found');
