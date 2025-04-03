@@ -7,6 +7,7 @@ import {
   logErrors,
   boomErrorHandler,
   sequelizeErrorHandler,
+  multerErrorHandler,
 } from './middlewares/error.handler.js';
 import { config } from './config/config.js';
 
@@ -35,6 +36,7 @@ routerApi(app);
 
 // Middlewares de manejo de errores
 app.use(logErrors);
+app.use(multerErrorHandler);
 app.use(sequelizeErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
