@@ -53,12 +53,13 @@ router.post(
 
 router.put(
   '/:id',
+  validatorHandler(multerProductImageSchema, 'files'),
   validatorHandler(getProductSchema, 'params'),
   validatorHandler(updateProductSchema, 'body'),
   async (req, res, next) => {
     try {
       const productId = parseInt(req.params.id);
-      const product = await service.update(productId, req.body);
+      const product = await service.update(productId, req.body, req.files);
 
       res.status(200).json({
         status: 200,
@@ -73,12 +74,17 @@ router.put(
 
 router.patch(
   '/:id',
+  validatorHandler(multerProductImageSchema, 'files'),
   validatorHandler(getProductSchema, 'params'),
   validatorHandler(updateProductSchema, 'body'),
   async (req, res, next) => {
     try {
       const productId = parseInt(req.params.id);
-      const product = await service.updatePartial(productId, req.body);
+      const product = await service.updatePartial(
+        productId,
+        req.body,
+        req.files,
+      );
 
       res.status(200).json({
         status: 200,
