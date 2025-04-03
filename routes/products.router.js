@@ -8,7 +8,6 @@ import {
   updateProductSchema,
 } from '../schemas/product.schemas.js';
 import { upload } from '../lib/multer.js';
-import { uploadImageToImgur } from '../utils/uploadToImgur.js';
 import { multerProductImageSchema } from '../schemas/product-image.schemas.js';
 
 const router = express.Router();
