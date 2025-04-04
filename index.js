@@ -7,6 +7,7 @@ import {
   logErrors,
   boomErrorHandler,
   sequelizeErrorHandler,
+  multerErrorHandler,
 } from './middlewares/error.handler.js';
 import { config } from './config/config.js';
 
@@ -30,20 +31,12 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Rutas principales
-app.get('/', (req, res) => {
-  res.send('<h1>My Store</h1>');
-});
-
-app.get('/about', (req, res) => {
-  res.send('<h1>About</h1>');
-});
-
 // Rutas de la API
 routerApi(app);
 
 // Middlewares de manejo de errores
 app.use(logErrors);
+app.use(multerErrorHandler);
 app.use(sequelizeErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
@@ -53,9 +46,7 @@ sequelize
   .authenticate()
   .then(() => {
     console.log('Database connected successfully!');
-    app.listen(PORT, () =>
-      console.log(`Server is running on port ${PORT}`),
-    );
+    app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
   })
   .catch((error) => {
     console.error(

@@ -1,11 +1,12 @@
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
 import { Op } from 'sequelize';
+import { createImagesForProduct } from './product-image.service.js';
 
 export default class ProductService {
   constructor() {}
 
-  async create(newProduct) {
+  async create(newProduct, newProductImages) {
     const existingCategory = await models.Category.findByPk(
       newProduct.categoryId,
     );
@@ -15,9 +16,23 @@ export default class ProductService {
       );
     }
 
-    const newProductCreate = await models.Product.create(newProduct);
-    newProductCreate.dataValues.category = existingCategory;
-    return newProductCreate;
+    const newCreateProduct = await models.Product.create(newProduct);
+    const { categoryId, ...product } = newCreateProduct.toJSON();
+    let createdImages = await createImagesForProduct(
+      product.id,
+      newProductImages,
+    );
+
+    const response = {
+      ...product,
+      images: createdImages.map((obj) => {
+        const { productId, ...image } = obj.toJSON();
+        return image;
+      }),
+      category: existingCategory.toJSON(),
+    };
+
+    return response;
   }
 
   async find({
@@ -50,7 +65,14 @@ export default class ProductService {
     const where = conditions.length > 0 ? { [Op.and]: conditions } : {};
 
     const options = {
-      include: ['category'],
+      attributes: { exclude: ['categoryId'] },
+      include: [
+        'category',
+        {
+          association: 'images',
+          attributes: { exclude: ['productId'] },
+        },
+      ],
       where,
     };
 
@@ -80,7 +102,14 @@ export default class ProductService {
 
   async findOne(productId) {
     const product = await models.Product.findByPk(productId, {
-      include: ['category'],
+      attributes: { exclude: ['categoryId'] },
+      include: [
+        'category',
+        {
+          association: 'images',
+          attributes: { exclude: ['productId'] },
+        },
+      ],
     });
     if (!product) {
       throw boom.notFound('Product not found');

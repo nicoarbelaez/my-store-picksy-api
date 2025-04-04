@@ -7,6 +7,8 @@ import {
   querySchema,
   updateProductSchema,
 } from '../schemas/product.schemas.js';
+import { upload } from '../lib/multer.js';
+import { multerProductImageSchema } from '../schemas/product-image.schemas.js';
 
 const router = express.Router();
 const service = new ProductService();
@@ -32,10 +34,12 @@ router.get(
 
 router.post(
   '/',
+  upload.array('images', 5),
+  validatorHandler(multerProductImageSchema, 'files'),
   validatorHandler(createProductSchema, 'body'),
   async (req, res, next) => {
     try {
-      const newProduct = await service.create(req.body);
+      const newProduct = await service.create(req.body, req.files);
       res.status(201).json({
         status: 201,
         message: 'Product created successfully',
@@ -49,12 +53,14 @@ router.post(
 
 router.put(
   '/:id',
+  upload.array('imagesToAdd', 5),
+  validatorHandler(multerProductImageSchema, 'files'),
   validatorHandler(getProductSchema, 'params'),
   validatorHandler(updateProductSchema, 'body'),
   async (req, res, next) => {
     try {
       const productId = parseInt(req.params.id);
-      const product = await service.update(productId, req.body);
+      const product = await service.update(productId, req.body, req.files);
 
       res.status(200).json({
         status: 200,
@@ -69,12 +75,17 @@ router.put(
 
 router.patch(
   '/:id',
+  validatorHandler(multerProductImageSchema, 'files'),
   validatorHandler(getProductSchema, 'params'),
   validatorHandler(updateProductSchema, 'body'),
   async (req, res, next) => {
     try {
       const productId = parseInt(req.params.id);
-      const product = await service.updatePartial(productId, req.body);
+      const product = await service.updatePartial(
+        productId,
+        req.body,
+        req.files,
+      );
 
       res.status(200).json({
         status: 200,
