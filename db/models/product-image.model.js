@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import { PRODUCT_TABLE } from './product.model.js';
+import { MAX_IMAGE_PER_PRODUCT } from '../../utils/consts.js';
 
 export const PRODUCT_IMAGE_TABLE = 'product_images';
 
@@ -79,8 +80,10 @@ export class ProductImage extends Model {
           const imageCount = await ProductImage.count({
             where: { productId: productImage.productId },
           });
-          if (imageCount >= 5) {
-            throw new Error('A product cannot have more than 5 images.');
+          if (imageCount >= MAX_IMAGE_PER_PRODUCT) {
+            throw new Error(
+              `A product cannot have more than ${MAX_IMAGE_PER_PRODUCT} images.`,
+            );
           }
         },
       },

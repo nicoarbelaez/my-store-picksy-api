@@ -9,6 +9,7 @@ import {
 } from '../schemas/product.schemas.js';
 import { upload } from '../lib/multer.js';
 import { multerProductImageSchema } from '../schemas/product-image.schemas.js';
+import { MAX_IMAGE_PER_PRODUCT } from '../utils/consts.js';
 
 const router = express.Router();
 const service = new ProductService();
@@ -34,7 +35,7 @@ router.get(
 
 router.post(
   '/',
-  upload.array('images', 5),
+  upload.array('images', MAX_IMAGE_PER_PRODUCT),
   validatorHandler(multerProductImageSchema, 'files'),
   validatorHandler(createProductSchema, 'body'),
   async (req, res, next) => {
@@ -53,7 +54,7 @@ router.post(
 
 router.put(
   '/:id',
-  upload.array('imagesToAdd', 5),
+  upload.array('imagesToAdd', MAX_IMAGE_PER_PRODUCT),
   validatorHandler(multerProductImageSchema, 'files'),
   validatorHandler(getProductSchema, 'params'),
   validatorHandler(updateProductSchema, 'body'),
@@ -75,6 +76,7 @@ router.put(
 
 router.patch(
   '/:id',
+  upload.array('imagesToAdd', MAX_IMAGE_PER_PRODUCT),
   validatorHandler(multerProductImageSchema, 'files'),
   validatorHandler(getProductSchema, 'params'),
   validatorHandler(updateProductSchema, 'body'),
