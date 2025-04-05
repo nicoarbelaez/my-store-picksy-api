@@ -1,7 +1,10 @@
 import { Op } from 'sequelize';
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
-import { uploadImageToImgur } from '../utils/uploadToImgur.js';
+import {
+  deleteImageFromImgur,
+  uploadImageToImgur,
+} from '../utils/uploadToImgur.js';
 
 export const deleteImagesForProduct = async (productId, imagesToRemove) => {
   const images = await models.ProductImage.findAll({
@@ -24,6 +27,18 @@ export const deleteImagesForProduct = async (productId, imagesToRemove) => {
 
   if (deletedCount !== imagesToRemove.length) {
     throw boom.badRequest('Not all specified images could be deleted.');
+  }
+
+  try {
+    await Promise.all(
+      images.map((image) => {
+        return deleteImageFromImgur(image.deletehash);
+      }),
+    );
+  } catch (error) {
+    throw boom.badRequest(
+      `There was a problem deleting the images: ${error.message}`,
+    );
   }
 
   return deletedCount;
