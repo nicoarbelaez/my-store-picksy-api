@@ -59,6 +59,12 @@ export const ProductImageSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL',
   },
+  isCover: {
+    allowNull: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    field: 'is_cover',
+  },
 };
 
 export class ProductImage extends Model {
@@ -66,6 +72,33 @@ export class ProductImage extends Model {
 
   static associate(models) {
     this.belongsTo(models.Product, { as: 'product', foreignKey: 'productId' });
+  }
+
+  static async validateMaxImages(productImage, sequelize) {
+    const { ProductImage } = sequelize.models;
+    const imageCount = await ProductImage.count({
+      where: { productId: productImage.productId },
+    });
+    if (imageCount >= MAX_IMAGE_PER_PRODUCT) {
+      throw new Error(
+        `A product cannot have more than ${MAX_IMAGE_PER_PRODUCT} images.`,
+      );
+    }
+  }
+
+  static async validateSingleCoverImage(productImage, sequelize) {
+    const { ProductImage } = sequelize.models;
+    if (productImage.isCover === true) {
+      const coverCount = await ProductImage.count({
+        where: {
+          productId: productImage.productId,
+          isCover: true,
+        },
+      });
+      if (coverCount > 0) {
+        throw new Error('There is already a cover image for this product.');
+      }
+    }
   }
 
   static config(sequelize) {
@@ -76,15 +109,11 @@ export class ProductImage extends Model {
       timestamps: false,
       hooks: {
         beforeCreate: async (productImage, options) => {
-          const { ProductImage } = sequelize.models;
-          const imageCount = await ProductImage.count({
-            where: { productId: productImage.productId },
-          });
-          if (imageCount >= MAX_IMAGE_PER_PRODUCT) {
-            throw new Error(
-              `A product cannot have more than ${MAX_IMAGE_PER_PRODUCT} images.`,
-            );
-          }
+          await ProductImage.validateMaxImages(productImage, sequelize);
+          await ProductImage.validateSingleCoverImage(productImage, sequelize);
+        },
+        beforeUpdate: async (productImage, options) => {
+          await ProductImage.validateSingleCoverImage(productImage, sequelize);
         },
       },
     };

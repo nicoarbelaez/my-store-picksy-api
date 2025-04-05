@@ -8,6 +8,8 @@ const categoryId = Joi.number().integer().positive();
 const stock = Joi.number().integer().min(0).max(100);
 const discount = Joi.number().integer().min(0).max(100);
 const characteristics = Joi.array().items(Joi.string());
+const coverImageIndex = Joi.number().integer().min(0);
+const coverImageId = Joi.number().integer().positive();
 const enabled = Joi.boolean();
 
 export const createProductSchema = Joi.object({
@@ -18,6 +20,7 @@ export const createProductSchema = Joi.object({
   stock,
   discount,
   characteristics,
+  coverImageIndex,
   enabled,
 });
 
@@ -29,9 +32,11 @@ export const updateProductSchema = Joi.object({
   stock,
   discount,
   characteristics,
+  coverImageId,
+  coverImageIndex,
   enabled,
   imagesToRemove: Joi.array().items(Joi.number()),
-});
+}).oxor('coverImageId', 'coverImageIndex');
 
 export const getProductSchema = Joi.object({
   id: id.required(),
