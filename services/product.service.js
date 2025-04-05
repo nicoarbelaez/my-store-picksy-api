@@ -174,10 +174,23 @@ export default class ProductService {
   }
 
   async delete(productId) {
-    const product = await models.Product.findByPk(productId);
+    const product = await models.Product.findByPk(productId, {
+      attributes: ['id'],
+      include: [
+        {
+          association: 'images',
+          attributes: ['id'],
+        },
+      ],
+    });
     if (!product) {
       throw boom.notFound('Product not found');
     }
+
+    await deleteImagesForProduct(
+      productId,
+      product.images.map((img) => img.id),
+    );
     await product.destroy();
     return { id: productId };
   }
