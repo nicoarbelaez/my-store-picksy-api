@@ -29,3 +29,30 @@ export async function uploadImageToImgur(buffer) {
   }
   return data.data;
 }
+
+export async function deleteImageFromImgur(deleteHash) {
+  let response;
+  try {
+    response = await fetch(`${URL_IMGUR_API}/image/${deleteHash}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Client-ID ${config.imgur.clientId}`,
+      },
+    });
+  } catch (error) {
+    throw new Error(`Failed to fetch from Imgur API: ${error.message}`);
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (error) {
+    throw new Error(`Failed to parse JSON response: ${error.message}`);
+  }
+
+  if (!data.success) {
+    throw new Error(`Failed to delete image: ${data.data.error}`);
+  }
+
+  return data;
+}
