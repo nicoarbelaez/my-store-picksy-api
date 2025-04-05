@@ -23,7 +23,7 @@ export const ProductSchema = {
     type: DataTypes.TEXT,
   },
   categoryId: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.INTEGER,
     field: 'category_id',
     references: {
