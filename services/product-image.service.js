@@ -12,7 +12,7 @@ export const deleteImagesForProduct = async (productId, imagesToRemove) => {
   });
 
   if (images.length !== imagesToRemove.length) {
-    throw boom.badRequest('Algunas imágenes no pertenecen a este producto.');
+    throw boom.badRequest('Some images do not belong to this product.');
   }
 
   const deletedCount = await models.ProductImage.destroy({
@@ -23,9 +23,7 @@ export const deleteImagesForProduct = async (productId, imagesToRemove) => {
   });
 
   if (deletedCount !== imagesToRemove.length) {
-    throw boom.badRequest(
-      'No se pudieron eliminar todas las imágenes especificadas.',
-    );
+    throw boom.badRequest('Not all specified images could be deleted.');
   }
 
   return deletedCount;
@@ -53,10 +51,14 @@ export const createImagesForProduct = async (productId, newProductImages) => {
       };
     });
 
-    const createdImages =
-      await models.ProductImage.bulkCreate(consolidatedImages);
+    const createdImages = await models.ProductImage.bulkCreate(
+      consolidatedImages,
+      { individualHooks: true },
+    );
     return createdImages;
   } catch (error) {
-    throw boom.badRequest('There was a problem uploading the images');
+    throw boom.badRequest(
+      `There was a problem uploading the images: ${error.message}`,
+    );
   }
 };
