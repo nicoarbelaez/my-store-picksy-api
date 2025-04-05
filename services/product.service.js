@@ -4,39 +4,63 @@ import { Op } from 'sequelize';
 import {
   deleteImagesForProduct,
   createImagesForProduct,
+  validateMaxImages,
+  validateCoverImage,
+  updateCoverImage,
+  unsetCurrentCoverImage,
 } from './product-image.service.js';
 
 export default class ProductService {
   constructor() {}
 
+  async validateCategory(categoryId) {
+    const category = await models.Category.findByPk(categoryId);
+    if (!category) {
+      throw boom.notFound(`Category not found with id: ${categoryId}`);
+    }
+    return category;
+  }
+
+  prepareImages(images, coverImageIndex) {
+    return images.map((file, index) => ({
+      ...file,
+      isCover: index === Number(coverImageIndex),
+    }));
+  }
+
   async create(newProduct, newProductImages) {
-    const existingCategory = await models.Category.findByPk(
-      newProduct.categoryId,
-    );
-    if (!existingCategory) {
-      throw boom.notFound(
-        `Category not found with id: ${newProduct.categoryId}`,
-      );
+    const { categoryId, coverImageIndex, ...productData } = newProduct;
+    await this.validateCategory(categoryId);
+
+    if (newProductImages?.length > 0) {
+      if (coverImageIndex === undefined) {
+        throw boom.badRequest(`The field "coverImageIndex" is required.`);
+      }
+      if (coverImageIndex >= newProductImages.length) {
+        throw boom.badRequest(
+          `The field "coverImageIndex" must be less than the number of images.`,
+        );
+      }
     }
 
-    const createdProduct = await models.Product.create(newProduct);
-    const { categoryId, ...product } = createdProduct.toJSON();
+    const createdProduct = await models.Product.create(productData);
+    const preparedImages = this.prepareImages(
+      newProductImages || [],
+      coverImageIndex,
+    );
 
     const createdImages =
-      newProductImages && newProductImages.length > 0
-        ? await createImagesForProduct(product.id, newProductImages)
+      preparedImages.length > 0
+        ? await createImagesForProduct(createdProduct.id, preparedImages)
         : [];
 
-    const response = {
-      ...product,
+    return {
+      ...createdProduct.toJSON(),
       images: createdImages.map((img) => {
         const { productId, ...image } = img.toJSON();
         return image;
       }),
-      category: existingCategory.toJSON(),
     };
-
-    return response;
   }
 
   async find({
@@ -119,7 +143,8 @@ export default class ProductService {
   }
 
   async update(productId, newProduct, newProductImages) {
-    const { imagesToRemove, ...productData } = newProduct;
+    const { imagesToRemove, coverImageId, coverImageIndex, ...productData } =
+      newProduct;
 
     const product = await models.Product.findByPk(productId);
     if (!product) {
@@ -127,18 +152,58 @@ export default class ProductService {
     }
 
     if (productData.categoryId) {
-      const existingCategory = await models.Category.findByPk(
-        productData.categoryId,
-      );
-      if (!existingCategory) {
-        throw boom.notFound(
-          `Category not found with id: ${productData.categoryId}`,
-        );
-      }
+      await this.validateCategory(productData.categoryId);
     }
 
-    if (imagesToRemove && imagesToRemove.length > 0) {
+    // Validar si se van a eliminar imágenes
+    if (imagesToRemove?.length > 0) {
+      const imagesToDelete = await models.ProductImage.findAll({
+        where: {
+          id: { [Op.in]: imagesToRemove },
+          isCover: true,
+          productId,
+        },
+      });
+
+      const hasCoverImageToRemove = imagesToDelete > 0;
+
+      // Validar si se elimina la imagen de portada
+      if (hasCoverImageToRemove) {
+        if (!(coverImageId || coverImageIndex)) {
+          throw boom.badRequest(
+            `Cannot remove a cover image without providing a replacement. Please specify either "coverImageId" or "coverImageIndex" to set a new cover image.`,
+          );
+        }
+
+        // Validar coverImageIndex si se proporciona
+        if (
+          coverImageIndex &&
+          (!newProductImages || coverImageIndex >= newProductImages.length)
+        ) {
+          throw boom.badRequest(
+            `The field "coverImageIndex" must be less than the number of new images.`,
+          );
+        }
+
+        // Validar coverImageId si se proporciona
+        if (coverImageId) {
+          await validateCoverImage(productId, coverImageId);
+        }
+      }
+
       await deleteImagesForProduct(productId, imagesToRemove);
+    }
+
+    // Validar y crear nuevas imágenes si se proporcionan
+    if (newProductImages?.length > 0) {
+      await validateMaxImages(productId, newProductImages.length);
+      await unsetCurrentCoverImage(productId);
+
+      const preparedImages = this.prepareImages(
+        newProductImages,
+        coverImageIndex,
+      );
+      await createImagesForProduct(productId, preparedImages);
     }
 
     const [updateCount] = await models.Product.update(productData, {
@@ -150,23 +215,12 @@ export default class ProductService {
       throw boom.badRequest('Product update failed.');
     }
 
-    let createdImages = [];
-    if (newProductImages && newProductImages.length > 0) {
-      createdImages = await createImagesForProduct(productId, newProductImages);
+    // Actualizar la imagen de portada si es necesario
+    if (coverImageId) {
+      await updateCoverImage(productId, coverImageId);
     }
 
-    const updatedProduct = await models.Product.findByPk(productId, {
-      attributes: { exclude: ['categoryId'] },
-      include: [
-        'category',
-        {
-          association: 'images',
-          attributes: { exclude: ['productId'] },
-        },
-      ],
-    });
-
-    return updatedProduct;
+    return this.findOne(productId);
   }
 
   async updatePartial(productId, newProduct, newProductImages) {
