@@ -1,4 +1,6 @@
 import express from 'express';
+import path from 'path'; // Importa path para manejar rutas de archivos
+import { fileURLToPath } from 'url'; // Necesario para obtener __dirname en ES Modules
 import { sequelize } from './lib/sequelize.js';
 import routerApi from './routes/index.router.js';
 import cors from 'cors';
@@ -13,6 +15,10 @@ import { config } from './config/config.js';
 
 const app = express();
 const PORT = config.port;
+
+// Obtener __dirname en ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middleware para parsear JSON
 app.use(express.json());
@@ -30,6 +36,14 @@ const corsOptions = {
   },
 };
 app.use(cors(corsOptions));
+
+// Servir archivos estáticos desde el directorio "public"
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Endpoint para servir index.html en "/"
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Rutas de la API
 routerApi(app);
