@@ -49,7 +49,7 @@ export const ProductImageSchema = {
     type: DataTypes.STRING,
   },
   productId: {
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.INTEGER,
     field: 'product_id',
     references: {
