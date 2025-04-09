@@ -12,6 +12,7 @@ import {
   multerErrorHandler,
 } from './middlewares/error.handler.js';
 import { config } from './config/config.js';
+import { checkApiKey } from './middlewares/auth.hanlder.js';
 
 const app = express();
 const PORT = config.port;
@@ -43,6 +44,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Endpoint para servir index.html en "/"
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/apikey', checkApiKey, (req, res) => {
+  res.json({ apiKey: config.apikey });
 });
 
 // Rutas de la API
