@@ -1,10 +1,11 @@
 import boom from '@hapi/boom';
+import bcrypt from 'bcryptjs';
 import { models } from '../lib/sequelize.js';
 
 export default class UserService {
   constructor() {}
 
-  static async create(newUser) {
+  async create(newUser) {
     const existingUser = await models.User.findOne({
       where: { email: newUser.email },
     });
@@ -12,13 +13,18 @@ export default class UserService {
       throw boom.conflict('User already exists');
     }
 
-    const newUserCreate = await models.User.create(newUser);
+    const password = await bcrypt.hash(newUser.password, 10);
+    const newUserCreate = await models.User.create({ ...newUser, password });
+    delete newUserCreate.dataValues.password;
     return newUserCreate;
   }
 
   async find() {
     const data = models.User.findAll({
       include: ['customer'],
+      attributes: {
+        exclude: ['password'],
+      },
     });
     return data;
   }

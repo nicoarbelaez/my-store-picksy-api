@@ -1,15 +1,25 @@
 import boom from '@hapi/boom';
 import { models } from '../lib/sequelize.js';
+import bcrypt from 'bcryptjs';
 
 export default class CustomerService {
   constructor() {}
 
   async create(newCustomer) {
     let customer;
+
     if (!newCustomer.userId) {
-      customer = await models.Customer.create(newCustomer, {
-        include: ['user'],
-      });
+      const password = await bcrypt.hash(newCustomer.user.password, 10);
+      customer = await models.Customer.create(
+        {
+          ...newCustomer,
+          user: {
+            ...newCustomer.user,
+            password,
+          },
+        },
+        { include: ['user'] },
+      );
     } else {
       const existingCustomer = await models.Customer.findOne({
         where: { userId: newCustomer.userId },
@@ -24,16 +34,29 @@ export default class CustomerService {
       if (!existingUser) {
         throw boom.notFound(`User not found with id: ${newCustomer.userId}`);
       }
+
       customer = await models.Customer.create(newCustomer, {
         include: ['user'],
       });
     }
-    return customer;
+
+    delete customerJson.user?.password;
+    delete customerJson.userId;
+
+    return customerJson;
   }
 
   async find() {
     const customers = models.Customer.findAll({
-      include: ['user'],
+      attributes: {
+        exclude: ['userId'],
+      },
+      include: {
+        association: 'user',
+        attributes: {
+          exclude: ['password'],
+        },
+      },
     });
     return customers;
   }
