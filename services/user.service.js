@@ -41,7 +41,11 @@ export default class UserService {
   }
 
   async findOne(userId) {
-    const user = await models.User.findByPk(userId);
+    const user = await models.User.findByPk(userId, {
+      attributes: {
+        exclude: ['password'],
+      },
+    });
     if (!user) {
       throw boom.notFound('User not found');
     }
