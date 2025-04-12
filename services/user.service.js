@@ -29,6 +29,17 @@ export default class UserService {
     return data;
   }
 
+  async findByEmail(email) {
+    const data = models.User.findOne({
+      where: { email },
+    });
+    return data;
+  }
+
+  comparePassword(password, hashedPassword) {
+    return bcrypt.compare(password, hashedPassword);
+  }
+
   async findOne(userId) {
     const user = await models.User.findByPk(userId);
     if (!user) {
