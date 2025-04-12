@@ -10,14 +10,5 @@ const options = {
 };
 
 export const JwtStrategy = new Strategy(options, async (payload, done) => {
-  try {
-    const user = await service.findOne(payload.sub);
-    if (!user) {
-      return done(boom.unauthorized(), false);
-    }
-    delete user.password;
-    done(null, user);
-  } catch (error) {
-    done(error, false);
-  }
+  done(null, payload);
 });
