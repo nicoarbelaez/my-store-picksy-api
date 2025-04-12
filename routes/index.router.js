@@ -4,6 +4,7 @@ import routerUsers from './users.router.js';
 import routerCustomers from './customer.router.js';
 import routerCategories from './category.router.js';
 import routerOrders from './order.router.js';
+import routerAuth from "./auth.router.js";
 
 const routerApi = (app) => {
   const router = express.Router();
@@ -13,6 +14,7 @@ const routerApi = (app) => {
   router.use('/customers', routerCustomers);
   router.use('/categories', routerCategories);
   router.use('/orders', routerOrders);
+  router.use("/auth", routerAuth);
 };
 
 export default routerApi;
