@@ -13,6 +13,7 @@ import {
 } from './middlewares/error.handler.js';
 import { config } from './config/config.js';
 import { checkApiKey } from './middlewares/auth.hanlder.js';
+import { initializeAuth } from './utils/auth/index.js';
 
 const app = express();
 const PORT = config.port;
@@ -23,6 +24,10 @@ const __dirname = path.dirname(__filename);
 
 // Middleware para parsear JSON
 app.use(express.json());
+
+// Inicializar Passport
+const passportInitialize = initializeAuth();
+app.use(passportInitialize);
 
 // Configuración de CORS
 const whitelist =
