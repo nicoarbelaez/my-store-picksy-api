@@ -27,6 +27,34 @@ export default class OrderService {
     return orders;
   }
 
+  async findByUser(userId) {
+    try {
+      const orders = await models.Order.findAll({
+        include: [
+          {
+            association: 'customer',
+            where: { userId: userId },
+            required: true,
+            include: [
+              {
+                association: 'user',
+                required: true,
+              },
+            ],
+          },
+          {
+            association: 'items',
+            required: true,
+          },
+        ],
+      });
+
+      return orders;
+    } catch (error) {
+      throw boom.boomify(error);
+    }
+  }
+
   async findOne(id) {
     const order = await models.Order.findByPk(id, {
       include: [
