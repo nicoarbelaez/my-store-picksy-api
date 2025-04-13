@@ -14,7 +14,7 @@ export const createCustomerSchema = Joi.object({
   phone: phone.required(),
   userId,
   user: createUserSchema,
-}).or('userId', 'user');
+});
 
 export const updateCustomerSchema = Joi.object({
   name,
