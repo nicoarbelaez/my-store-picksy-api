@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 const id = Joi.number().integer().positive();
-const customerId = Joi.number().integer().positive();
+const customerId = Joi.string().uuid();
 const createdAt = Joi.date().timestamp();
 const status = Joi.string().valid('pending', 'completed', 'cancelled');
 const orderId = Joi.number().integer().positive();
@@ -13,7 +13,7 @@ export const getOrderSchema = Joi.object({
 });
 
 export const createOrderSchema = Joi.object({
-  customerId: customerId.required(),
+  customerId,
   createdAt,
   status,
 });
