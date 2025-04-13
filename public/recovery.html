@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Picksy</title>
+    <style>
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #e6e6e6;
+        --accent: #2ecc71;
+        --hover-accent: #27ae60;
+        --hover-accent-color: #caffe0;
+        --joke-accent: #e74c3c;
+        --joke-hover: #c0392b;
+        --method-get: #9b59b6;
+        --method-post: #2ecc71;
+        --method-put: #e67e22;
+        --method-patch: #f1c40f;
+        --method-delete: #e74c3c;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        line-height: 1.6;
+        padding: 1rem;
+      }
+
+      .container {
+        max-width: 600px;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--accent);
+      }
+
+      .links {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+      }
+
+      a {
+        color: var(--text-color);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      a:hover {
+        color: var(--accent);
+      }
+
+      .doc-btn {
+        background-color: var(--accent);
+        color: var(--bg-color);
+        padding: 0.8rem 1.5rem;
+        border-radius: 5px;
+        text-transform: uppercase;
+        font-weight: bold;
+        margin: 1.5rem 0;
+        display: inline-block;
+        transition: background-color 0.3s ease;
+      }
+
+      .doc-btn:hover {
+        background-color: var(--hover-accent);
+        color: var(--hover-accent-color);
+      }
+
+      .lang-switcher {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .endpoints-container {
+        margin-top: 2rem;
+        width: 100%;
+      }
+
+      .endpoint-group {
+        margin: 1rem 0;
+      }
+
+      .group-summary {
+        list-style: none;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition:
+          background 0.3s ease,
+          transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .group-summary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+      }
+
+      .group-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .group-summary::before {
+        content: "▶";
+        display: inline-block;
+        margin-right: 0.5rem;
+        transition:
+          transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 0.2s ease;
+      }
+
+      .endpoint-group[open] .group-summary::before {
+        transform: rotate(90deg);
+      }
+
+      .group-content {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition:
+          max-height 0.3s ease-out,
+          opacity 0.2s ease 0.1s,
+          transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(-10px);
+      }
+
+      .endpoint-group[open] .group-content {
+        max-height: 1000px;
+        opacity: 1;
+        transform: translateY(0);
+        transition:
+          max-height 0.4s ease-in,
+          opacity 0.3s ease 0.1s,
+          transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .endpoint-container {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        cursor: pointer;
+        text-align: left;
+        transition:
+          transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+          background 0.3s ease;
+      }
+
+      .endpoint-container:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(10px);
+      }
+
+      .method-tag {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 0.85rem;
+        margin-right: 1rem;
+        opacity: 0.8;
+      }
+
+      .endpoint-path {
+        color: white;
+        font-family: monospace;
+        transition: color 0.3s ease;
+      }
+
+      /* Métodos HTTP */
+      .get {
+        color: var(--method-get);
+        background: rgba(155, 89, 182, 0.15);
+      }
+      .post {
+        color: var(--method-post);
+        background: rgba(46, 204, 113, 0.15);
+      }
+      .put {
+        color: var(--method-put);
+        background: rgba(230, 126, 34, 0.15);
+      }
+      .patch {
+        color: var(--method-patch);
+        background: rgba(241, 196, 15, 0.15);
+      }
+      .delete {
+        color: var(--method-delete);
+        background: rgba(231, 76, 60, 0.15);
+      }
+
+      svg {
+        width: 24px;
+        height: 24px;
+        fill: currentColor;
+      }
+      body.joke-mode {
+        --accent: var(--joke-accent);
+        --hover-accent: var(--joke-hover);
+      }
+
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 2rem;
+        }
+        .links {
+          flex-direction: row;
+          gap: 1rem;
+        }
+        .endpoint-container {
+          padding: 0.75rem;
+        }
+      }
+
+      /* Nuevos estilos agregados */
+      .password-form {
+        margin: 2rem auto;
+        max-width: 400px;
+        width: 100%;
+      }
+
+      .password-input {
+        width: 100%;
+        padding: 0.8rem 2.5rem 0.8rem 0.8rem;
+        margin: 1rem 0;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--accent);
+        border-radius: 4px;
+        color: var(--text-color);
+        font-size: 1rem;
+      }
+
+      .password-input:focus {
+        outline: none;
+        border-color: var(--hover-accent);
+      }
+
+      .change-btn {
+        background-color: var(--accent);
+        color: var(--bg-color);
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+      }
+
+      .change-btn:hover {
+        background-color: var(--hover-accent);
+      }
+
+      dialog {
+        background: var(--bg-color);
+        color: var(--text-color);
+        border: 1px solid var(--accent);
+        margin: auto;
+        border-radius: 8px;
+        padding: 1.5rem;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+      }
+
+      dialog::backdrop {
+        background: rgba(0, 0, 0, 0.7);
+      }
+
+      .response-status {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        color: var(--accent);
+      }
+
+      .close-btn {
+        background: var(--accent);
+        color: var(--bg-color);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 1rem;
+      }
+
+      .close-btn:hover {
+        background: var(--hover-accent);
+      }
+
+      .password-container {
+        position: relative;
+        margin: 1rem 0;
+      }
+
+      .toggle-password {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .toggle-password svg {
+        width: 100%;
+        height: 100%;
+        fill: #666;
+        transition: fill 0.3s ease;
+      }
+
+      .toggle-password:hover svg {
+        fill: var(--accent);
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="lang-switcher" id="langToggle">EN/ES</div>
+      <h1 data-i18n="title">Picksy</h1>
+      <p data-i18n="changePasswordDesc">Change your password</p>
+
+      <div class="password-form">
+        <div class="password-container">
+          <input
+            type="password"
+            class="password-input"
+            placeholder="New password"
+            id="passwordInput"
+            required
+          />
+          <button type="button" class="toggle-password" id="togglePassword">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                class="hidden"
+                d="M12 6a9.77 9.77 0 0 1 8.82 5.5A9.77 9.77 0 0 1 12 17a9.77 9.77 0 0 1-8.82-5.5A9.77 9.77 0 0 1 12 6zm0-2C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zM3 3l18 18"
+              />
+
+              <path
+                d="M12 6a9.77 9.77 0 0 1 8.82 5.5A9.77 9.77 0 0 1 12 17a9.77 9.77 0 0 1-8.82-5.5A9.77 9.77 0 0 1 12 6m0-2C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5m0-2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9z"
+              />
+            </svg>
+          </button>
+        </div>
+        <button class="change-btn" id="changeBtn" data-i18n="changePassword">
+          Change Password
+        </button>
+      </div>
+
+      <dialog id="responseDialog">
+        <div class="response-status" id="statusCode"></div>
+        <p id="responseMessage"></p>
+        <button
+          class="close-btn"
+          onclick="document.getElementById('responseDialog').close()"
+          data-i18n="close"
+        >
+          Close
+        </button>
+      </dialog>
+    </div>
+
+    <script>
+      const translations = {
+        en: {
+          title: "Picksy",
+          changePasswordDesc: "Change your password",
+          changePassword: "Change Password",
+          close: "Close",
+        },
+        es: {
+          title: "Picksy",
+          changePasswordDesc: "Cambiar contraseña",
+          changePassword: "Cambiar Contraseña",
+          close: "Cerrar",
+        },
+        joke: {
+          title: "Picksy",
+          changePasswordDesc: "Cambiar contraseña secreta",
+          changePassword: "¡Cambiar contraseña!",
+          close: "🤫 Cerrar",
+        },
+      };
+
+      // Obtener token de la URL
+      function getTokenFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("token");
+      }
+
+      // Manejar cambio de contraseña
+      const API_ENDPOINT = `${window.location.origin}/api/v1/auth/change-password`;
+      const DIALOG_ELEMENTS = {
+        status: document.getElementById("statusCode"),
+        message: document.getElementById("responseMessage"),
+        dialog: document.getElementById("responseDialog"),
+      };
+
+      const updateDialog = (status, message) => {
+        DIALOG_ELEMENTS.status.textContent = `Status: ${status}`;
+        DIALOG_ELEMENTS.message.textContent = message;
+        DIALOG_ELEMENTS.dialog.showModal();
+      };
+
+      const validateInputs = (password) => {
+        if (!password?.trim()) {
+          updateDialog("Error", "Password field must be filled");
+          return false;
+        }
+        return true;
+      };
+
+      async function handlePasswordChange() {
+        const token = getTokenFromURL();
+        const password = document.getElementById("passwordInput").value;
+
+        if (!token) return alert("Invalid token");
+        if (!validateInputs(password)) return;
+
+        try {
+          const response = await fetch(API_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, password }),
+          });
+
+          const data = await response.json();
+          updateDialog(
+            response.status,
+            data.message || "Password updated successfully",
+          );
+        } catch (error) {
+          updateDialog("Error", error.message || "An error occurred");
+        }
+      }
+
+      // Toggle password visibility
+      const togglePassword = document.getElementById("togglePassword");
+      const passwordInput = document.getElementById("passwordInput");
+
+      togglePassword.addEventListener("click", () => {
+        const isPassword = passwordInput.type === "password";
+        passwordInput.type = isPassword ? "text" : "password";
+
+        // Toggle SVG icons
+        const paths = togglePassword.querySelectorAll("path");
+        paths.forEach((path) => path.classList.toggle("hidden"));
+      });
+
+      // Actualizar contenido según idioma
+      function updateContent() {
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          const key = element.getAttribute("data-i18n");
+          element.textContent = translations[currentLang][key];
+        });
+      }
+
+      // Configuración inicial
+      let currentLang = "en";
+      const langToggle = document.getElementById("langToggle");
+      let clickCount = 0;
+      let clickTimeout;
+
+      // Event listeners
+      document
+        .getElementById("changeBtn")
+        .addEventListener("click", handlePasswordChange);
+
+      langToggle.addEventListener("click", () => {
+        clickCount++;
+        if (clickCount === 3) {
+          currentLang = "joke";
+          document.body.classList.add("joke-mode");
+          updateContent();
+          langToggle.textContent = "😂";
+          clickCount = 0;
+          return;
+        }
+        currentLang = currentLang === "en" ? "es" : "en";
+        document.body.classList.remove("joke-mode");
+        document.documentElement.lang = currentLang;
+        updateContent();
+        langToggle.textContent = currentLang === "en" ? "EN/ES" : "ES/EN";
+        clearTimeout(clickTimeout);
+        clickTimeout = setTimeout(() => {
+          clickCount = 0;
+        }, 500);
+      });
+
+      // Inicializar
+      updateContent();
+    </script>
+  </body>
+</html>
