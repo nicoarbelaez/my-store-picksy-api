@@ -13,7 +13,7 @@ export default class UserService {
       throw boom.conflict('User already exists');
     }
 
-    const password = await bcrypt.hash(newUser.password, 10);
+    const password = hashPassword(newUser.password);
     const newUserCreate = await models.User.create({ ...newUser, password });
     delete newUserCreate.dataValues.password;
     return newUserCreate;
@@ -37,6 +37,11 @@ export default class UserService {
       },
     });
     return data;
+  }
+
+  async hashPassword(password) {
+    const hash = await bcrypt.hash(password, 10);
+    return hash;
   }
 
   comparePassword(password, hashedPassword) {
