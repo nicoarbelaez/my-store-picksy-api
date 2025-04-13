@@ -38,6 +38,9 @@ importers:
       my-store:
         specifier: 'file:'
         version: 'file:'
+      nodemailer:
+        specifier: ^6.10.0
+        version: 6.10.0
       passport:
         specifier: ^0.7.0
         version: 0.7.0
@@ -1336,6 +1339,10 @@ packages:
 
   next-tick@1.1.0:
     resolution: {integrity: sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==}
+
+  nodemailer@6.10.0:
+    resolution: {integrity: sha512-SQ3wZCExjeSatLE/HBaXS5vqUOQk6GtBdIIKxiFdmm01mOQZX/POJkO3SUX1wDiYcwUOJwT23scFSC9fY2H8IA==}
+    engines: {node: '>=6.0.0'}
 
   nodemon@3.1.9:
     resolution: {integrity: sha512-hdr1oIb2p6ZSxu3PB2JWWYS7ZQ0qvaZsc3hK8DR8f02kRzc8rjYmxAIvdz+aYC+8F2IjNaB7HMcSDg8nQpJxyg==}
@@ -3553,6 +3560,7 @@ snapshots:
       jsonwebtoken: 9.0.2
       multer: 1.4.5-lts.2
       passport: 0.7.0
+      passport-jwt: 4.0.1
       passport-local: 1.0.0
       pg: 8.14.1
       pg-hstore: 2.3.4
@@ -3575,6 +3583,8 @@ snapshots:
   negotiator@0.6.3: {}
 
   next-tick@1.1.0: {}
+
+  nodemailer@6.10.0: {}
 
   nodemon@3.1.9:
     dependencies:
