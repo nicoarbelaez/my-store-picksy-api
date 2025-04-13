@@ -13,7 +13,7 @@ export default class UserService {
       throw boom.conflict('User already exists');
     }
 
-    const password = hashPassword(newUser.password);
+    const password = await this.hashPassword(newUser.password);
     const newUserCreate = await models.User.create({ ...newUser, password });
     delete newUserCreate.dataValues.password;
     return newUserCreate;
