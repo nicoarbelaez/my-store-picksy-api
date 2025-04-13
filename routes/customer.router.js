@@ -6,6 +6,7 @@ import {
   getCustomerSchema,
   updateCustomerSchema,
 } from '../schemas/customer.schemas.js';
+import { passportMiddleware } from '../utils/auth/index.js';
 
 const router = express.Router();
 const service = new CustomerService();
@@ -30,10 +31,15 @@ router.get(
 
 router.post(
   '/',
+  passportMiddleware.authenticate('jwt', { session: false }),
   validatorHandler(createCustomerSchema, 'body'),
   async (req, res, next) => {
+    const body = req.body;
+    if (!body.userId) {
+      body.userId = req.user.sub;
+    }
     try {
-      const newCustomer = await service.create(req.body);
+      const newCustomer = await service.create(body);
       res.status(201).json({
         status: 201,
         message: 'Customer created successfully',
