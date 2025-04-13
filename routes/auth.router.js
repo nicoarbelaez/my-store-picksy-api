@@ -1,12 +1,9 @@
 import express from 'express';
 import { passportMiddleware } from '../utils/auth/index.js';
-import { signToken } from '../utils/auth/jwt.js';
-import UserService from '../services/user.service.js';
-import boom from '@hapi/boom';
-import { sendRecoveryEmail } from '../utils/mail.js';
+import AuthService from '../services/auth.service.js';
 
 const router = express.Router();
-const userService = new UserService();
+const authService = new AuthService();
 
 router.post(
   '/login',
@@ -14,7 +11,7 @@ router.post(
   async (req, res, next) => {
     try {
       const user = req.user;
-      const jwt = signToken(user);
+      const jwt = await authService.createSingToken(user);
       res.json({
         user: user,
         token: jwt,
@@ -28,17 +25,11 @@ router.post(
 router.post('/recovery', async (req, res, next) => {
   const { email } = req.body;
   try {
-    const user = await userService.findByEmail(email);
-    if (!user) {
-      throw boom.unauthorized();
-    }
-
-    const token = signToken(user, { expiresIn: '10m' });
-
-    await sendRecoveryEmail(email, token);
-
+    const result = await authService.sendRecoveryEmail(email);
     res.json({
-      message: 'Recovery email sent',
+      status: result.success ? 'success' : 'error',
+      message: result.message,
+      messageId: result.messageId,
     });
   } catch (error) {
     next(error);
