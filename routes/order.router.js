@@ -7,6 +7,7 @@ import {
   updateOrderSchema,
   addItemSchema,
 } from '../schemas/order.schema.js';
+import { passportMiddleware } from '../utils/auth/index.js';
 
 const router = express.Router();
 const service = new OrderService();
@@ -37,10 +38,15 @@ router.get(
 
 router.post(
   '/',
+  passportMiddleware.authenticate('jwt', { session: false }),
   validatorHandler(createOrderSchema, 'body'),
   async (req, res, next) => {
+    const body = req.body;
+    if (!body.customerId) {
+      body.userId = req.user.sub;
+    }
     try {
-      const newOrder = await service.create(req.body);
+      const newOrder = await service.create(body);
 
       res.status(201).json({
         status: 201,
