@@ -6,6 +6,8 @@ const {
   mail: { auth, host, port, secure, from },
 } = config;
 
+const hotsname = `${config.host}${config.env === 'development' ? `:${config.port}` : ''}`;
+
 const transporter = createTransport({
   host,
   port: Number(port),
@@ -33,7 +35,7 @@ export const sendEmail = async (email, subject, content) => {
     validateEmailInputs(email, subject, content);
 
     const info = await transporter.sendMail({
-      from: `"Picksy.com" <${from.email}>`,
+      from: `"Picksy.com" <${from}>`,
       to: email,
       subject,
       text: content.text || stripHtml(content.html),
@@ -50,7 +52,7 @@ export const sendEmail = async (email, subject, content) => {
 
 export const sendRecoveryEmail = async (email, token) => {
   try {
-    const recoveryUrl = `${config.host}/recovery?token=${token}`;
+    const recoveryUrl = `${hotsname}/recovery?token=${token}`;
 
     const emailContent = {
       html: `
