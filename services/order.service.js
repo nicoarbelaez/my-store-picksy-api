@@ -5,7 +5,33 @@ export default class OrderService {
   constructor() {}
 
   async create(data) {
-    const newOrder = await models.Order.create(data);
+    let newOrder = null;
+    if (!data.userId && data.customerId) {
+      try {
+        newOrder = await models.Order.create(data);
+      } catch (error) {
+        throw boom.boomify(error);
+      }
+    } else {
+      const customer = await models.Customer.findOne({
+        include: [
+          {
+            association: 'user',
+            where: { id: data.userId },
+            required: true,
+          },
+        ],
+      });
+
+      if (!customer) {
+        throw boom.notFound('Customer not found');
+      }
+
+      newOrder = await models.Order.create({
+        customerId: customer.id,
+      });
+    }
+
     return newOrder;
   }
 
@@ -33,18 +59,8 @@ export default class OrderService {
         include: [
           {
             association: 'customer',
+            required: true,
             where: { userId: userId },
-            required: true,
-            include: [
-              {
-                association: 'user',
-                required: true,
-              },
-            ],
-          },
-          {
-            association: 'items',
-            required: true,
           },
         ],
       });
