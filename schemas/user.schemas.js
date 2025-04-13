@@ -1,8 +1,8 @@
 import Joi from 'joi';
 
-const id = Joi.string().uuid();
-const email = Joi.string().min(3).max(30);
-const password = Joi.string().min(8).max(30);
+export const id = Joi.string().uuid();
+export const email = Joi.string().min(3).max(30);
+export const password = Joi.string().min(8).max(30);
 const role = Joi.string().min(5);
 
 export const createUserSchema = Joi.object({
