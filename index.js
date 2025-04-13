@@ -82,7 +82,7 @@ const startServer = async () => {
 
     app.listen(config.port, () => {
       console.log(
-        `Server running on port ${config.port}\t http://${config.host}:${config.port}`,
+        `Server running on port ${config.port}\t ${config.host}:${config.port}`,
       );
       console.log(`Environment: ${config.env}`);
       console.log(`CORS Whitelist: ${config.corsWhitelist}`);
