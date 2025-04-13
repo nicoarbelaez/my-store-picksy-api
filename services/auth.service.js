@@ -1,5 +1,5 @@
 import boom from '@hapi/boom';
-import { signToken } from '../utils/auth/jwt.js';
+import { recoveryToken, signToken } from '../utils/auth/jwt.js';
 import UserService from './user.service.js';
 import { sendRecoveryEmail } from '../utils/mail.js';
 
@@ -15,7 +15,7 @@ export default class AuthService {
         throw boom.unauthorized('User not found');
       }
 
-      const token = signToken(user);
+      const token = recoveryToken(user);
       await userService.update(user.id, {
         recoveryToken: token,
       });
