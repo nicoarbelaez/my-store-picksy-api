@@ -32,6 +32,9 @@ export default class UserService {
   async findByEmail(email) {
     const data = models.User.findOne({
       where: { email },
+      attributes: {
+        exclude: ['recoveryToken'],
+      },
     });
     return data;
   }
