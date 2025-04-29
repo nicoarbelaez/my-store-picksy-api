@@ -67,7 +67,7 @@ export default class ProductService {
     page = 1,
     size = 10,
     order = 'asc',
-    sort,
+    sort = 'id',
     min_price,
     max_price,
     search,
@@ -103,9 +103,7 @@ export default class ProductService {
       where,
     };
 
-    if (sort) {
-      options.order = [[sort, order.toUpperCase()]];
-    }
+    options.order = [[sort, order.toUpperCase()]];
 
     const totalElements = await models.Product.count({ where });
     const totalPages = Math.ceil(totalElements / size);
