@@ -240,6 +240,47 @@
           padding: 0.75rem;
         }
       }
+
+      .error-popup {
+        display: none;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #e74c3c;
+        color: white;
+        padding: 1rem;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        max-width: 300px;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .error-popup.show {
+        display: block;
+      }
+
+      .error-popup-close {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 1.2rem;
+      }
     </style>
   </head>
   <body>
@@ -289,6 +330,12 @@
       >
 
       <div class="endpoints-container" id="endpointsList"></div>
+    </div>
+
+    <div id="errorPopup" class="error-popup">
+      <button class="error-popup-close" onclick="closeErrorPopup()">×</button>
+      <h3>Error de Conexión</h3>
+      <p id="errorMessage"></p>
     </div>
 
     <script>
@@ -429,6 +476,41 @@
       // Initial setup
       updateContent();
       renderEndpoints();
+
+      // Función para mostrar el popup de error
+      function showErrorPopup(message) {
+        const popup = document.getElementById('errorPopup');
+        const messageEl = document.getElementById('errorMessage');
+        messageEl.textContent = message;
+        popup.classList.add('show');
+      }
+
+      // Función para cerrar el popup
+      function closeErrorPopup() {
+        const popup = document.getElementById('errorPopup');
+        popup.classList.remove('show');
+      }
+
+      // Verificar el estado de la base de datos
+      async function checkDatabaseStatus() {
+        try {
+          const response = await fetch('/api/status');
+          const status = await response.json();
+
+          if (!status.connected) {
+            showErrorPopup(`Error en la base de datos: ${status.error}`);
+          }
+        } catch (error) {
+          showErrorPopup('No se pudo verificar el estado de la base de datos');
+        }
+      }
+
+      // Verificar el estado cuando se carga la página
+      checkDatabaseStatus();
+
+      // Verificar el estado cada 30 segundos
+      setInterval(checkDatabaseStatus, 30000);
     </script>
   </body>
 </html>
+```

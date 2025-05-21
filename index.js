@@ -53,14 +53,26 @@ const configureStaticAssets = () => {
   );
 };
 
-/** Configura las rutas de la aplicación */
-const configureRoutes = () => {
-  // Ruta de ejemplo protegida
+/** Configura las rutas del sistema */
+const configureSystemRoutes = () => {
+  // Ruta para verificar el estado de la DB
+  app.get('/api/status', (req, res) => {
+    res.json(
+      app.locals.dbStatus || {
+        connected: false,
+        error: 'Estado no disponible',
+      },
+    );
+  });
+
+  // Ruta protegida para API key
   app.get('/apikey', checkApiKey, (req, res) => {
     res.json({ apiKey: config.apikey });
   });
+};
 
-  // Rutas principales
+const configureRoutes = () => {
+  configureSystemRoutes();
   routerApi(app);
 };
 
@@ -83,6 +95,11 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Database connected successfully!');
 
+    app.locals.dbStatus = {
+      connected: true,
+      error: null,
+    };
+
     app.listen(config.port, () => {
       console.log(
         `Server running on port ${config.port}\t ${config.host}:${config.port}`,
@@ -92,7 +109,15 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error('Database connection error:', error.message);
-    process.exit(1);
+
+    app.locals.dbStatus = {
+      connected: false,
+      error: error.message,
+    };
+
+    app.listen(config.port, () => {
+      console.log('Server started in error mode');
+    });
   }
 };
 
